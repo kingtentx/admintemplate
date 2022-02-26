@@ -1,0 +1,83 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>角色编辑</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="~/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="~/layuiadmin/style/admin.css" media="all">
+    <link rel="stylesheet" href="~/css/site.css" media="all">
+</head>
+<body>
+    <div class="layui-fluid">
+        <div class="layui-card">
+            <div class="layui-card-header">导入</div>
+            <div class="layui-card-body" style="padding: 15px;">
+
+                <form class="layui-form">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">下载模板</label>
+                        <div class="layui-input-block">
+                            <a href="#"></a>
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-form-text">
+                        <div class="layui-upload">
+                            <button type="button" class="layui-btn layui-btn-normal" id="btnFile">选择文件</button>
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-layout-admin">
+                        <div class="layui-input-block">
+                            <div class="layui-footer" style="left: 0;">
+                                <button type="button" class="layui-btn" id="btnImport">开始上传</button>
+                                <a href="/article/Index" class="layui-btn layui-btn-primary">返回列表</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="~/layuiadmin/layui/layui.js"></script>
+    <script>
+        layui.config({
+            base: '../../layuiadmin/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['index', 'upload'], function () {
+            var $ = layui.jquery
+                , layer = layui.layer
+                , upload = layui.upload;
+
+            //选完文件后不自动上传
+            upload.render({
+                elem: '#btnFile',
+                acceptMime: 'file', //普通文件
+                exts: 'xlsx',
+                url: '/article/Import',
+                auto: false,
+                //,multiple: true
+                bindAction: '#btnImport',
+                done: function (res) {
+                    console.log(res);
+                    if (res.code == 1000) {
+                        layer.msg('上传成功');
+                    }
+                },
+                error: function (res) {
+                    console.log(res);
+                    layer.msg(res.msg);
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>

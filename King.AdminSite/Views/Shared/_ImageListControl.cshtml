@@ -1,0 +1,39 @@
+﻿@model List<Tags>
+@{
+    ViewDataDictionary data = new ViewDataDictionary(ViewData);
+}
+
+<div class="container" id="album-list-@data["Index"]">
+    <div class="solution-container">
+        <div data-am-widget="tabs" class="am-tabs am-no-layout">
+            <ul class="am-tabs-nav am-cf">
+                @foreach (var item in Model)
+                {
+                    <li class="@Html.Raw((int)data["DefaultTagsId"]==item.TagsId?"am-active imgLi":"imgLi")" id="album-@data["Index"]-@item.TagsId"><a href="[data-tab-panel-@data["Index"]-@item.TagsId]">@Html.Raw(item.TagsName)</a></li>
+                }
+            </ul>
+            <div class="am-tabs-bd" style="touch-action: pan-y; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
+                @foreach (var item in Model)
+                {
+                    <div @Html.Raw($"data-tab-panel-{data["Index"]}-{item.TagsId}")="" class="am-tab-panel am-active am-in">
+                        <div class="am-g" id="list-@data["Index"]-@item.TagsId">
+
+                        </div>
+                        <!-- pagination--start-->
+                        <div>
+                            <ul class="am-pagination" id="page-@data["Index"]-@item.TagsId">
+                            </ul>
+                        </div>
+                        <!-- pagination--end-->
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {     
+        initData('album',@data["Index"],@data["DefaultTagsId"], 1); 
+    });
+</script>

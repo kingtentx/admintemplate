@@ -1,0 +1,132 @@
+﻿
+@{
+    Layout = null;
+}
+@using King.Utils.Enums
+@model CtTagsModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>用户编辑</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="~/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="~/layuiadmin/style/admin.css" media="all">
+    <link rel="stylesheet" href="~/css/site.css" media="all">
+</head>
+<body>
+    <div class="layui-fluid">
+        <div class="layui-card">
+            <div class="layui-card-header">@(Model.TagsId>0?"修改标签": "添加标签")</div>
+            <div class="layui-card-body" style="padding: 15px;">
+                <form class="layui-form" lay-filter="form-group">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">标签名称</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="TagsName" lay-verify="required" placeholder="请输入标签名称" autocomplete="off" class="layui-input w500" value="@Html.Raw(Model.TagsName)">
+                        </div>
+                    </div>
+                    <div class="layui-form-item @(Model.TagsId>0?"layui-hide":"")">
+                        <label class="layui-form-label">类型</label>
+                        <div class="layui-input-block">
+                            <div class="layui-col-md12">
+                                @foreach (var e in Enum.GetValues(typeof(TagsType)))
+                                {
+                                    <input type="radio" name="TagsType" lay-verify="otherReq" value="@e.GetHashCode()" title="@Html.Raw(King.Helper.EnumHelper.GetDescription((TagsType)e))" @Html.Raw(e.GetHashCode() == Model.TagsType.GetHashCode() ? " checked=\"checked\"" : "")>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">是否启用</label>
+                        <div class="layui-input-block">
+                            <div class="layui-col-md12">
+                                <input type="radio" name="IsActive" lay-verify="otherReq" value="true" title="是" @Html.Raw(Model.IsActive == true ? " checked=\"checked\"" : "")>
+                                <input type="radio" name="IsActive" lay-verify="otherReq" value="false" title="否" @Html.Raw(Model.IsActive == false ? " checked=\"checked\"" : "")>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-layout-admin">
+                        <div class="layui-input-block">
+                            <div class="layui-footer" style="left: 0;">
+                                <button class="layui-btn" lay-submit="" lay-filter="form-page">立即保存</button>
+                                <a href="/Tags/Index" class="layui-btn layui-btn-primary">返回列表</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="~/layuiadmin/layui/layui.js"></script>
+    <script>
+        layui.config({
+            base: '../../layuiadmin/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['index', 'form'], function () {
+            var $ = layui.$
+                , layer = layui.layer
+                , form = layui.form;
+
+            form.render();
+
+            /* 自定义验证规则 */
+
+            form.verify({
+                required: function (value) {
+                    if (value.length < 1) {
+                        return '必填项不能为空';
+                    }
+                },
+                otherReq: function (value, item) {
+                    var $ = layui.$;
+                    var verifyName = $(item).attr('name')
+                        , verifyType = $(item).attr('type')
+                        , formElem = $(item).parents('.layui-form')//获取当前所在的form元素，如果存在的话
+                        , verifyElem = formElem.find('input[name=' + verifyName + ']')//获取需要校验的元素
+                        , isTrue = verifyElem.is(':checked')//是否命中校验
+                        , focusElem = verifyElem.next().find('i.layui-icon');//焦点元素
+                    if (!isTrue || !value) {
+                        //定位焦点
+                        focusElem.css(verifyType == 'radio' ? { "color": "#FF5722" } : { "border-color": "#FF5722" });
+                        //对非输入框设置焦点
+                        focusElem.first().attr("tabIndex", "1").css("outline", "0").blur(function () {
+                            focusElem.css(verifyType == 'radio' ? { "color": "" } : { "border-color": "" });
+                        }).focus();
+                        return '必填项不能为空';
+                    }
+                }
+            });
+
+            ///* 监听提交 */
+            form.on('submit(form-page)', function (data) {
+                console.log(data.field);
+                layer.confirm('确认保存信息吗？', function (index) {
+                    $.ajax({
+                        type: "post",
+                        url: '/Tags/Edit/@Model.TagsId',
+                        data: data.field,
+                        dataType: "json",
+                        success: function (res) {
+                            layer.close(index);
+                            if (res.code == 1000) {
+                                layer.msg(res.msg);
+                            }
+                            else {
+                                layer.msg(res.msg, { icon: 5 });
+                            }
+                        }
+                    });
+                });
+                //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+                return false;
+            });
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,555 @@
+﻿
+@{
+    Layout = null;
+}
+@model WxNewsModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>编辑</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="~/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="~/layuiadmin/style/admin.css" media="all">
+    <link rel="stylesheet" href="~/css/site.css" media="all">
+    <link href="~/css/jquery.dad.css" rel="stylesheet" />
+    <style>
+        .up_index {
+            z-index: 999999;
+        }
+
+        .appnews {
+            cursor: pointer;
+        }
+
+        .appnews_first {
+            width: 310px;
+            height: 158px;
+            position: relative;
+        }
+
+            .appnews_first .img {
+                width: 100%;
+                height: 100%
+            }
+
+            .appnews_first .title {
+                color: #fff;
+                position: absolute;
+                left: 12px;
+                bottom: 15px;
+                z-index: 10
+            }
+
+        .appnews_item {
+            border-bottom: 1px dashed #b7b6b6;
+            width: 310px;
+            height: 80px;
+            position: relative;
+            clear: both;
+        }
+
+            .appnews_item .img {
+                padding: 12px;
+                width: 48px;
+                height: 48px;
+                float: right;
+            }
+
+            .appnews_item .title {
+                line-height: 48px;
+                width: 200px;
+                padding: 12px;
+                float: left;
+            }
+
+            .appnews_item:after {
+                content: "\200B";
+                display: block;
+                height: 0;
+                clear: both;
+            }
+
+        .add {
+            text-align: center;
+            line-height: 80px;
+        }
+
+            .add i {
+                cursor: pointer;
+            }
+
+        .move div {
+            border: 2px dashed #4cff00;
+        }
+
+        .selectd {
+            border: 2px solid #4cff00;
+        }
+
+        .appnews:hover {
+            border: 1px solid #4cff00;
+        }
+
+        .appnews .close-upimg {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            display: none;
+            z-index: 15;
+            cursor: pointer;
+        }
+
+        .appnews:hover .close-upimg {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <form class="layui-form" lay-filter="form-group">
+        <div class="layui-fluid">
+            <div class="layui-row layui-col-space12">
+                <div class="layui-col-xs4">
+                    <!-- 填充内容 -->
+                    <div class="layui-card">
+                        <div class="layui-card-header">图文列表</div>
+                        <div class="layui-card-body">
+                            <div class="layui-form-item">
+                                <div id="newsList">
+                                    @if (Model.Articles.Count > 0)
+                                    {
+                                        int i = 0;
+                                        foreach (var item in Model.Articles)
+                                        {
+                                            i++;
+                                            if (i == 1)
+                                            {
+                                                <div class="appnews appnews_first" id="article_@i.ToString()">
+                                                    <img src="/img/a7.png" class="close-upimg">
+                                                    <img class="img" src="@item.CoverUrl" />
+                                                    <span class="title">@item.Title</span>
+                                                    <input type="hidden" name="txtItemId" value="@item.Id" />
+                                                    <input type="hidden" name="txtSort" value="@i.ToString()" />
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="appnews appnews_item" id="article_@i.ToString()">
+                                                    <span class="title">@item.Title</span>
+                                                    <img src="/img/a7.png" class="close-upimg">
+                                                    <img class="img" src="@item.CoverUrl" />
+                                                    <input type="hidden" name="txtItemId" value="@item.Id" />
+                                                    <input type="hidden" name="txtSort" value="@i.ToString()" />
+                                                </div>
+                                            }
+                                        }
+                                    }
+
+                                </div>
+                                <div class="appnews_item">
+                                    <div class="add"><i class="layui-icon layui-icon-addition">新建消息</i></div>
+                                </div>
+                                <div class="txt_cen m_t5">
+                                    <button class="layui-btn" name="btnEditSort" id="btnEditSort">修改排序</button>
+                                    <button class="layui-btn" name="btnSaveSort" id="btnSaveSort" style="display:none;">保存排序</button>
+                                </div>
+                            </div>
+                            <input type="hidden" name="MeId" id="MeId" value="@Model.Articles[0].MeId" />
+                            <input type="hidden" name="ArticleId" id="ArticleId" value="@Model.Articles[0].Id" />
+                            <input type="hidden" name="indexId" id="indexId" value="1" />
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md8">
+                    <div class="layui-card">
+                        <div class="layui-card-header">文章内容</div>
+                        <div class="layui-card-body">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">标题</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="Title" id="Title" lay-verify="required" autocomplete="off" placeholder="请输入标题" class="layui-input w300" value="@Html.Raw(Model.Articles[0].Title)">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">作者</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="Author" id="Author" lay-verify="required" placeholder="请输入作者" autocomplete="off" class="layui-input w300" value="@Html.Raw(Model.Articles[0].Author)">
+                                </div>
+                            </div>
+                            <div class="layui-form-item layui-form-text">
+                                <label class="layui-form-label">内容</label>
+                                <div class="layui-input-block">
+                                    <div id="txtContent">@Html.Raw(Model.Articles[0].Content)</div>
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">封面</label>
+                                <div class="layui-input-block">
+                                    <button class="layui-btn layuiadmin-btn-admin" id="btnAddImage">添加</button>
+                                    <img src="@Model.Articles[0].CoverUrl" id="CoverImageUrl" style="width:180px;" />
+                                    <input type="hidden" name="CoverUrl" id="CoverUrl" value="@Html.Raw(Model.Articles[0].CoverUrl)">
+                                    <input type="hidden" name="ThumbMediaId" id="ThumbMediaId" value="@Html.Raw(Model.Articles[0].ThumbMediaId)">
+                                </div>
+
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">摘要</label>
+                                <div class="layui-input-block">
+                                    <textarea name="Digest" id="Digest" lay-verify="required" placeholder="请输入" class="layui-textarea">@Html.Raw(Model.Articles[0].Digest)</textarea>
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">文章链接</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="ContentSourceUrl" id="ContentSourceUrl" lay-verify="required" placeholder="请输入" autocomplete="off" class="layui-input w300" value="@Html.Raw(Model.Articles[0].ContentSourceUrl)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-layout-admin">
+                    <div class="layui-input-block">
+                        <div class="layui-footer up_index" style="left: 0;">
+                            <button class="layui-btn" lay-submit="" lay-filter="form-page">立即保存</button>
+                            <a href="/Wecat/WxNewsList" class="layui-btn layui-btn-primary">返回列表</a>
+                            <button class="layui-btn layui-btn-normal" id="btnSyncWecat">上传素材</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="~/layuiadmin/layui/layui.js"></script>
+    <script src="~/js/jquery-1.12.4.min.js"></script>
+    <script src="~/js/jquery.dad.min.js"></script>
+    <script src="~/wangEditor-3.1.1/editor/wangEditor.js"></script>
+    <script>
+        layui.config({
+            base: '../../layuiadmin/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['index', 'form'], function () {
+            var $ = layui.$
+                , layer = layui.layer
+                , form = layui.form;
+
+            //wangEdit
+            var E = window.wangEditor
+            var editor = new E('#txtContent');
+            editor.customConfig.menus = [
+                'undo',  // 撤销
+                'head',  // 标题
+                'bold' /** 粗体*/, 'fontSize' /** 字号 */, 'fontName' /** 字体 */, 'italic' /** 斜体 */,
+                'underline',  // 下划线
+                'strikeThrough',  // 删除线
+                'foreColor',  // 文字颜色
+                'backColor',  // 背景颜色
+                // 'link',  // 插入链接
+                // 'list',  // 列表
+                'justify',  // 对齐方式
+                'quote',  // 引用
+                'emoticon',  // 表情   打开后支持表情功能
+                'image',  // 插入图片
+                'table',  // 表格
+                //'video',  // 插入视频
+                //'code',  // 插入代码
+                'redo'  // 重复
+            ]
+            editor.customConfig.uploadFileName = 'file';
+            // 配置服务器端地址 upload:上传图片地址
+            editor.customConfig.uploadImgServer = '/Wecat/Uploadimg';
+            // 将 timeout 时间改为 5s
+            editor.customConfig.uploadImgTimeout = 20000
+            //可使用监听函数在上传图片的不同阶段做相应处理
+            editor.customConfig.uploadImgHooks = {
+                success: function (xhr, editor, result) {
+                },
+                error: function (xhr, editor) {
+                    layer.msg('图片上传失败');
+                },
+                customInsert: function (insertImg, result, editor) {
+                    //var imgurl = result.url
+                    var imgurl = result.thumbnailUrl
+                    console.log(imgurl);
+                    insertImg(imgurl);
+                }
+            }
+            editor.create();
+
+            form.render(null, 'form-group');
+
+            ///* 监听提交 */
+            form.on('submit(form-page)', function (data) {
+                var this_index_id = $('#indexId').val();
+                var html = editor.txt.html();
+                data.field.id = $('#ArticleId').val();
+                data.field.Sort = this_index_id;
+                data.field.Content = html;
+                var formdata = data.field;
+                console.log(formdata);
+                $.ajax({
+                    type: "post",
+                    url: '/wecat/newsedit',
+                    data: formdata,
+                    dataType: "json",
+                    success: function (res) {
+                        if (res.code == 1000) {
+                            layer.alert(res.msg, function (index) {
+                                $('#MeId').val(res.data.newId);
+                                $('#ArticleId').val(res.data.articleId);
+                                //console.log($('#article_' + res.data.articleId).html());
+                                $('#article_' + this_index_id).find('.img').attr('src', formdata.CoverUrl);
+                                $('#article_' + this_index_id).find('.title').html(formdata.Title);
+                                $('#article_' + this_index_id).find('input[name=txtItemId]').val(res.data.articleId);
+                                layer.close(index);
+                            });
+                        }
+                        else {
+                            layer.msg(res.msg, { icon: 5 });
+                        }
+                    },
+                    error: function (res) {
+                        layer.msg(res.responseText, { offset: '15px', icon: 5, time: 1000 });
+                    }
+                });
+                //阻止刷新
+                return false;
+            });
+
+            //选择封面
+            $('#btnAddImage').click(function () {
+                layer.open({
+                    type: 2,
+                    maxmin: true,
+                    title: '选择图片',
+                    content: '/Wecat/WxImageInfo',
+                    area: ['800px', '600px'],
+                    btn: ['确定', '取消'],
+                    yes: function (index, layero) {
+                        var media_id = layero.find('iframe').contents().find('input[name=select_mediaId]').val();
+                        console.log(media_id);
+                        $('#ThumbMediaId').val(media_id);
+                        var coverUrl = layero.find('iframe').contents().find('input[name=select_imgUrl]').val();
+                        console.log(coverUrl);
+                        $('#CoverImageUrl').attr('src', coverUrl);
+                        $('#CoverUrl').val(coverUrl);
+                        layer.close(index); //关闭弹层
+                    }
+                });
+                //阻止刷新
+                return false;
+            });
+
+            //上传新素材  [必须先保存文章]
+            $('#btnSyncWecat').click(function () {
+                $.ajax({
+                    type: "get",
+                    url: '/wecat/UploadWxNews?MeId=' + $('#MeId').val(),
+                    dataType: "json",
+                    success: function (res) {
+                        if (res.code == 1000) {
+                            layer.alert(res.msg);
+                        }
+                        else {
+                            layer.msg(res.msg, { icon: 5 });
+                        }
+                    }
+                });
+                return false;
+            });
+
+            //图文列表
+            $('#newsList').on('click', '.appnews', function () {
+                $('#newsList .appnews').removeClass('selectd');
+                $(this).addClass('selectd');
+
+                var id = $(this).find('input[name=txtItemId]').val();
+                var index_id = $(this).attr('id').split('_')[1];
+                //表单文章ID
+                $('#ArticleId').val(id);
+                $('#indexId').val(index_id);
+
+                if (id > 0) {
+                    $.ajax({
+                        type: "get",
+                        url: '/wecat/GetWxNews?id=' + id,
+                        dataType: "json",
+                        success: function (res) {
+                            if (res.code == 1000) {
+                                $('#Title').val(res.data.title);
+                                $('#Author').val(res.data.author);
+                                $('#CoverUrl').val(res.data.coverUrl);
+                                $('#ThumbMediaId').val(res.data.thumbMediaId);
+                                $('#Digest').val(res.data.digest);
+                                $('#ContentSourceUrl').val(res.data.contentSourceUrl);
+                                $('#CoverImageUrl').attr('src', res.data.coverUrl);
+                                editor.txt.html(res.data.content);
+                            }
+                            else {
+                                layer.msg(res.msg, { icon: 5 });
+                            }
+                        },
+                        error: function (res) {
+                            console.log(res.responseText);
+                            layer.msg(res.responseText, { offset: '15px', icon: 5, time: 1000 });
+                        }
+                    });
+                }
+                else {
+                    clearArticle();
+                }
+            });
+
+            //新建图文
+            $('.add').click(function () {
+                var index = $('.appnews').length + 1;
+
+                if (index < 9) {
+                    var newsHtml = '';
+                    newsHtml += '<div class="appnews appnews_item" id="article_' + index + '">';
+                    newsHtml += ' <span class="title"></span>';
+                    newsHtml += ' <img src="/img/a7.png" class="close-upimg">';
+                    newsHtml += ' <img class="img" src="../img/a9.png" />';
+                    newsHtml += ' <input type="hidden" name="txtItemId" value="0" />';
+                    newsHtml += ' <input type="hidden" name="txtSort" value="' + index + '" />';
+                    newsHtml += '</div>';
+                    $('#newsList').append(newsHtml);
+                    $('#indexId').val(index);
+                    clearArticle();
+                }
+                else {
+                    layer.msg('最多只能8遍文章', { icon: 5 });
+                }
+            });
+
+            //删除文章
+            $('#newsList').on('click', '.close-upimg', function () {
+                var item_id = $(this).parent().find('input[name=txtItemId]').val();
+                var this_id = $(this).parent().attr('id');
+                var MeId = $('#MeId').val();
+                var index = $('.appnews').length;
+                console.log(index);
+                if (item_id > 0) {
+                    if (index == 1) {
+                        layer.msg('至少保留一条图文消息');
+                        return false;
+                    }
+                    else {
+                        layer.confirm('确认删除?', function (index) {
+                            layer.msg('正在删除...', { icon: 16, shade: 0.3, time: 5000 });
+                            $.ajax({
+                                type: "post",
+                                url: '/wecat/DeleteWxArticle',
+                                data: { "MeId": MeId, "id": item_id },
+                                dataType: "json",
+                                success: function (res) {
+                                    if (res.code == 1000) {
+                                        layer.msg(res.msg);
+                                        //$('#' + this_id).remove();
+                                        //layer.close(index);
+                                        location.reload();
+                                    }
+                                    else {
+                                        layer.msg(res.msg);
+                                    }
+                                }
+                            });
+                        });
+                    }
+                }
+                else {
+                    $('#' + this_id).remove();
+                }
+                return false;
+            });
+
+            //编辑排序
+            $('#btnEditSort').click(function () {
+                $('#btnEditSort').hide();
+                $('#btnSaveSort').show();
+                $('#newsList').dad({
+                    placeholder: '',
+                    callback: function (obj) {
+                        //console.log(obj.html());
+                        newdiv();
+                    }
+                });
+                $('#newsList').addClass('move');
+                return false;
+            });
+
+            //保存排序
+            $('#btnSaveSort').click(function () {
+                $('#btnEditSort').show();
+                $('#btnSaveSort').hide();
+                var data = '';
+                var index = 0;
+                $('.appnews').each(function () {
+                    index++;
+                    var id = $(this).find('input[name=txtItemId]').val();
+                    var sort = $(this).find('input[name=txtSort]').val();
+                    if (index == 1) {
+                        data += '{"id":' + id + ' ,"sort":' + sort + '}';
+                    } else {
+                        data += ',{"id":' + id + ' ,"sort":' + sort + '}';
+                    }
+                });
+                var jsonData = '[' + data + ']';
+                console.log(jsonData);
+                $.ajax({
+                    type: "post",
+                    url: '/wecat/SortWxNews',
+                    data: { "jsonData": jsonData },
+                    dataType: "json",
+                    success: function (res) {
+                        if (res.code == 1000) {
+                            layer.msg(res.msg, { icon: 1 });
+                            location.reload();
+                        }
+                        else {
+                            layer.msg(res.msg, { icon: 5 });
+                        }
+                    }
+                });
+                return false;
+            });
+
+            //新图文Div样式
+            function newdiv() {
+                var len = 0;
+                $('.appnews').each(function () {
+                    len++;
+                    $(this).find('input[name=txtSort]').val(len);
+                });
+
+                var sort = $('#newsList .appnews_first').find('input[name=txtSort]').val();
+
+                if (sort != 1) {
+                    $('#newsList').children().eq(sort - 1).removeClass('appnews_first');
+                    $('#newsList').children().eq(sort - 1).addClass('appnews_item');
+
+                    $('#newsList').children().eq(0).removeClass('appnews_item');
+                    $('#newsList').children().eq(0).addClass('appnews_first');
+                }
+            }
+
+            //clear 表单
+            function clearArticle() {
+                $('#ArticleId').val(0);
+                $('#Title').val('');
+                $('#Author').val('');
+                $('#CoverUrl').val('');
+                $('#ThumbMediaId').val('');
+                $('#Digest').val('');
+                $('#ContentSourceUrl').val('');
+                $('#CoverImageUrl').attr('src', '');
+                editor.txt.html('');
+            }
+        });
+    </script>
+</body>
+</html>
+

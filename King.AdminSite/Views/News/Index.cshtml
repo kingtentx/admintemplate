@@ -1,0 +1,42 @@
+﻿@{
+    ViewData["Title"] = "新闻中心";
+
+}
+@model PageModel
+<!--===========layout-container================-->
+<div class="layout-container">
+    <div class="page-header">
+        <div class="am-container">
+            <h1 class="page-header-title">公司动态</h1>
+        </div>
+    </div>
+
+    <div class="breadcrumb-box">
+        <div class="am-container">
+            <ol class="am-breadcrumb">
+                <li><a href="/home/index">首页</a></li>
+                <li class="am-active">公司动态</li>
+            </ol>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <div class="container">
+        @*<div class="section--header">
+            <h2 class="section--title">Latest News</h2>
+            <p class="section--description">
+                云适配与中建材信息技术股份有限公司（以下简称“中建信息”）联合举办的“战略
+                <br>合作签约仪式暨全国跨屏行动启动大会”在北京成功举办。
+            </p>
+        </div>*@
+
+        @*@await Html.PartialAsync("~/Views/Shared/_TitleControl.cshtml")
+        @await Html.PartialAsync("~/Views/Shared/_ContentControl.cshtml")*@
+
+        @await Html.PartialAsync("~/Views/Shared/_ImageControl.cshtml")
+        @await Html.PartialAsync("~/Views/Shared/_ImageTextListControl.cshtml")
+
+    </div>
+</div>
+

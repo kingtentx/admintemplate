@@ -1,0 +1,14 @@
+﻿@model CtImageModel
+<!-- Swiper -->
+<div class="swiper-container">
+    <div class="swiper-wrapper">
+        @foreach (var img in Model.ImageList)
+        {
+            <div class="swiper-slide"><img src="@img.ImageUrl" class="img" /></div>      
+        }
+    </div>
+    @*   <!-- Add Arrows -->
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>*@
+</div>
+<!-- Swiper JS -->

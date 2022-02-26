@@ -1,0 +1,227 @@
+﻿
+@{
+    Layout = null;
+}
+@model ArticleModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>用户编辑</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="~/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="~/layuiadmin/style/admin.css" media="all">
+    <link rel="stylesheet" href="~/css/site.css" media="all">
+    <style>
+        .up_index {
+            z-index: 999999;
+        }
+    </style>
+</head>
+<body>
+    <div class="layui-fluid">
+        <div class="layui-card">
+            <div class="layui-card-header">@(Model.ArticleId>0?"修改文章": "添加文章")</div>
+            <div class="layui-card-body" style="padding: 15px;">
+                <form class="layui-form" lay-filter="form-group">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">文章标题</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="Title" lay-verify="required" autocomplete="off" placeholder="请输入文章标题" class="layui-input w300" value="@Html.Raw(Model.Title)">
+                        </div>
+                    </div>
+                     <div class="layui-form-item">
+                        <label class="layui-form-label">标签</label>
+                        <div class="layui-input-inline up_index w300">
+                            <select name="TagsId" lay-verify="required">
+                                <option value="">请选择</option>
+                                @foreach (var item in Model.TagsList.Where(p => p.TagsType == (int)King.Utils.Enums.TagsType.ImageTextList))
+                                {
+                                    <option value="@item.TagsId" @Html.Raw(Model.TagsId == item.TagsId ? "selected=\"selected\"" : "")>@Html.Raw(item.TagsName)</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">封面</label>
+                        <div class="layui-upload">
+                            <button type="button" class="layui-btn" id="btnFile">上传封面</button>
+                            <button type="button" class="layui-btn layui-btn-checked" id="btnDeleteImage">删除封面</button>
+                            <input type="hidden" id="ImageUrl" name="ImageUrl" value="@Html.Raw(Model.ImageUrl)">
+                            <div class="layui-input-block img-box m_t12">
+                                @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                                {
+                                <img src="@Model.ImageUrl" width="450" height="280" />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">作者</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="Author" lay-verify="required" placeholder="请输入作者" autocomplete="off" class="layui-input w300" value="@Html.Raw(Model.Author)">
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item" lay-filter="component-form-element">
+                        <label class="layui-form-label">是否发布</label>
+                        <div class="layui-input-block">
+                            <div class="layui-col-md12">
+                                <input type="radio" name="IsActive" value="true" title="是" @Html.Raw(Model.IsActive == true ? " checked=\"checked\"" : "")>
+                                <input type="radio" name="IsActive" value="false" title="否" @Html.Raw(Model.IsActive == false ? " checked=\"checked\"" : "")>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item layui-form-text">
+                        <label class="layui-form-label">内容</label>
+                        <div class="layui-input-block">
+                            <div id="txtDetail">@Html.Raw(Model.Detail)</div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-layout-admin">
+                        <div class="layui-input-block">
+                            <div class="layui-footer" style="left: 0; z-index: 20000">
+                                <button class="layui-btn" lay-submit="" lay-filter="form-page">立即保存</button>
+                                <a href="/article/index" class="layui-btn layui-btn-primary">返回列表</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="~/layuiadmin/layui/layui.js"></script>   
+    <script src="~/wangEditor-3.1.1/editor/wangEditor.js"></script>
+    <script>
+        layui.config({
+            base: '../../layuiadmin/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['index', 'form', 'upload'], function () {
+            var $ = layui.$
+                , treeSelect = layui.treeSelect
+                , layer = layui.layer
+                , upload = layui.upload
+                , form = layui.form;
+
+            //自动上传
+            upload.render({
+                elem: '#btnFile',
+                acceptMime: 'file',
+                exts: 'jpg|png|gif',
+                url: '/Upload/UploadImage',
+                auto: true,
+                done: function (res) {
+                    //console.log(res);
+                    var imgHtml = '<img src=' + res.url + ' width="450" height="280" >';
+                    $('.img-box').html(imgHtml);
+                    $('#ImageUrl').val(res.url);
+                    //layer.msg('上传成功！');
+                },
+                error: function (res) {
+                    console.log(res);
+                    layer.msg('上传失败，服务器错误！');
+                }
+            });
+            //删除
+            $('#btnDeleteImage').click(function () {
+                $('.img-box').html('');
+                $('#ImageUrl').val('');
+            });
+            //wangEdit
+            var E = window.wangEditor
+            var editor = new E('#txtDetail');
+            //editor.customConfig.uploadImgShowBase64 = false;
+            editor.customConfig.uploadFileName = 'file';
+            // 配置服务器端地址 upload:上传图片地址
+            editor.customConfig.uploadImgServer = '/Upload/UploadImage';
+            // 将 timeout 时间改为 5s
+            editor.customConfig.uploadImgTimeout = 10000
+            //可使用监听函数在上传图片的不同阶段做相应处理
+            editor.customConfig.uploadImgHooks = {
+                before: function (xhr, editor, files) {
+                    // 图片上传之前触发
+                    // xhr 是 XMLHttpRequst 对象，editor 是编辑器对象，files 是选择的图片文件
+                    // 如果返回的结果是 {prevent: true, msg: 'xxxx'} 则表示用户放弃上传
+                    // return {
+                    //     prevent: true,
+                    //     msg: '放弃上传'
+                    // }
+                },
+                success: function (xhr, editor, result) {
+                    // 图片上传并返回结果，图片插入成功之后触发
+                    // xhr 是 XMLHttpRequst 对象，editor 是编辑器对象，result 是服务器端返回的结果
+                    //layer.msg('图片上传成功');
+                },
+                fail: function (xhr, editor, result) {
+                    // 图片上传并返回结果，但图片插入错误时触发
+                    // xhr 是 XMLHttpRequst 对象，editor 是编辑器对象，result 是服务器端返回的结果
+                    layer.msg('图片上传失败');
+                },
+                error: function (xhr, editor) {
+                    // 图片上传出错时触发
+                    // xhr 是 XMLHttpRequst 对象，editor 是编辑器对象
+                    layer.msg('图片上传失败');
+                },
+                timeout: function (xhr, editor) {
+                    // 图片上传超时时触发
+                    // xhr 是 XMLHttpRequst 对象，editor 是编辑器对象
+                    layer.msg('图片上传超时');
+                },
+                // 如果服务器端返回的不是 {errno:0, data: [...]} 这种格式，可使用该配置
+                // （但是，服务器端返回的必须是一个 JSON 格式字符串！！！否则会报错）
+                customInsert: function (insertImg, result, editor) {
+                    // 图片上传并返回结果，自定义插入图片的事件（而不是编辑器自动插入图片！！！）
+                    // insertImg 是插入图片的函数，editor 是编辑器对象，result 是服务器端返回的结果
+                    // 举例：假如上传图片成功后，服务器端返回的是 {url:'....'} 这种格式，即可这样插入图片：
+                    var imgurl = result.url
+                    console.log(imgurl)
+                    insertImg(imgurl)
+                    // result 必须是一个 JSON 格式字符串！！！否则报错
+                }
+            }
+            editor.create();
+            
+
+            ///* 监听提交 */
+            form.on('submit(form-page)', function (data) {
+                var html = editor.txt.html();
+                data.field.Detail = html;
+                console.log(data.field);
+
+                $.ajax({
+                    type: "post",
+                    //contentType: 'application/x-www-form-urlencoded',
+                    url: '/article/edit/@Model.ArticleId',
+                    data: data.field,
+                    dataType: "json",
+                    success: function (res) {
+                        if (res.code == 1000) {
+                            layer.alert(res.msg, function (index) {
+                                window.location.href = '/article/index';//do something
+                                layer.close(index);
+                            });
+                        }
+                        else {
+                            layer.msg(res.msg, { icon: 5 });
+                        }
+                    },
+                    error: function (res) {
+                        console.log(res.responseText);
+                        layer.msg(res.responseText, { offset: '15px', icon: 5, time: 1000 });
+                    }
+                });
+                //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+                return false;
+            });
+
+
+        });
+    </script>
+</body>
+</html>
+

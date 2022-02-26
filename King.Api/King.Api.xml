@@ -1,0 +1,467 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>King.Api</name>
+    </assembly>
+    <members>
+        <member name="F:King.Api.Common.CACHE_ValidateKey">
+            <summary>
+            验证码
+            </summary>
+        </member>
+        <member name="M:King.Api.Utils.LoginUser(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            
+            </summary>
+            <param name="Claims"></param>
+            <returns></returns>
+        </member>
+        <member name="M:King.Api.Utils.CreateChildTree(System.Collections.Generic.List{King.Data.Category},King.Api.Models.TreeModel)">
+            <summary>
+            分类递归
+            </summary>
+            <param name="list"></param>
+            <param name="tree"></param>
+            <returns></returns>
+        </member>
+        <member name="M:King.Api.Utils.IsIdCard(System.String)">
+            <summary>
+            身份证验证
+            </summary>
+            <param name="idCard"></param>
+            <returns></returns>
+        </member>
+        <member name="T:King.Api.ValidateCode">
+            <summary>
+            图形验证码
+            </summary>
+        </member>
+        <member name="M:King.Api.ValidateCode.CreateValidateGraphic(System.String@,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            输出图形验证码。
+            </summary>
+            <param name="Code">验证码</param>
+            <param name="CodeLength">验证码个数</param>
+            <param name="Width"></param>
+            <param name="Height"></param>
+            <param name="FontSize"></param>
+            <returns></returns>
+        </member>
+        <member name="P:King.Api.JwtConfig.Issuer">
+            <summary>
+            token是谁颁发的
+            </summary>
+        </member>
+        <member name="P:King.Api.JwtConfig.Audience">
+            <summary>
+            token可以给哪些客户端使用
+            </summary>
+        </member>
+        <member name="P:King.Api.JwtConfig.SecretKey">
+            <summary>
+            加密的key
+            </summary>
+        </member>
+        <member name="P:King.Api.JwtConfig.Expiration">
+            <summary>
+            过期时间（分钟）
+            </summary>
+        </member>
+        <member name="P:King.Api.RedisConfig.IsEnabled">
+            <summary>
+            是否启用
+            </summary>
+        </member>
+        <member name="P:King.Api.RedisConfig.ConnectionStrings">
+            <summary>
+            连接
+            </summary>
+        </member>
+        <member name="P:King.Api.RedisConfig.InstanceName">
+            <summary>
+            实例名
+            </summary>
+        </member>
+        <member name="P:King.Api.RedisConfig.DefaultDB">
+            <summary>
+            默认存储库
+            </summary>
+        </member>
+        <member name="T:King.Api.Controllers.AuthorizeController">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:King.Api.Controllers.AuthorizeController.#ctor(Microsoft.Extensions.Options.IOptions{King.Api.JwtConfig},King.Interface.ICacheService,King.Interface.IBllService{King.Data.User})">
+            <summary>
+            
+            </summary>
+            <param name="jwt"></param>
+            <param name="cache"></param>
+            <param name="userService"></param>
+        </member>
+        <member name="M:King.Api.Controllers.AuthorizeController.Login(King.Api.Models.UserInput)">
+            <summary>
+            登录
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:King.Api.Controllers.AuthorizeController.GetImgBase64">
+            <summary>
+            验证码
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:King.Api.Controllers.NewsController">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:King.Api.Controllers.NewsController.GetTags">
+            <summary>
+            Tags标签
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:King.Api.Controllers.NewsController.GetNewsList(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            新闻列表
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:King.Api.Controllers.UserController">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:King.Api.Controllers.UserController.Register(King.Api.Models.UserInput)">
+            <summary>
+            注册用户
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:King.Api.Controllers.UserController.GetUserInfo">
+            <summary>
+            获取用户信息
+            </summary>       
+            <returns></returns>
+        </member>
+        <member name="P:King.Api.Filters.ActionFilter.ActionArguments">
+            <summary>
+            请求参数
+            </summary>
+        </member>
+        <member name="P:King.Api.Filters.ActionFilter.RequestBody">
+            <summary>
+            请求体中的所有值
+            </summary>
+        </member>
+        <member name="T:King.Api.Models.AjaxResult">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.AjaxResult.Code">
+            <summary>
+            状态码
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.AjaxResult.Msg">
+            <summary>
+            消息
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.AjaxResult.Data">
+            <summary>
+            返回数据
+            </summary>
+        </member>
+        <member name="T:King.Api.Models.AjaxResultList">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.AjaxResultList.Code">
+            <summary>
+            状态码
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.AjaxResultList.Msg">
+            <summary>
+            消息
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.AjaxResultList.Count">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.AjaxResultList.Data">
+            <summary>
+            返回数据
+            </summary>
+        </member>
+        <member name="T:King.Api.Models.ResultCode">
+            <summary>
+            状态码
+            </summary>
+        </member>
+        <member name="F:King.Api.Models.ResultCode.Success">
+            <summary>
+            成功1000
+            </summary>
+        </member>
+        <member name="F:King.Api.Models.ResultCode.Nopermit">
+            <summary>
+            无权限访问1001
+            </summary>
+        </member>
+        <member name="F:King.Api.Models.ResultCode.Limited">
+            <summary>
+            访问次数达到上限1002
+            </summary>
+        </member>
+        <member name="F:King.Api.Models.ResultCode.NULL">
+            <summary>
+            无该记录
+            </summary>
+        </member>
+        <member name="F:King.Api.Models.ResultCode.ServerError">
+            <summary>
+            服务器处理失败1004
+            </summary>
+        </member>
+        <member name="F:King.Api.Models.ResultCode.Fail">
+            <summary>
+            失败1005
+            </summary>
+        </member>
+        <member name="F:King.Api.Models.ResultCode.ParmsError">
+            <summary>
+            参数不全1006
+            </summary>
+        </member>
+        <member name="T:King.Api.Models.UserInput">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.UserInput.Telphone">
+            <summary>
+            手机
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.UserInput.Password">
+            <summary>
+            密码
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.UserInput.ValidateKey">
+            <summary>
+            key
+            </summary>        
+        </member>
+        <member name="P:King.Api.Models.UserInput.ValidateValue">
+            <summary>
+            验证码
+            </summary>       
+        </member>
+        <member name="P:King.Api.Models.LoginUser.UserId">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.LoginUser.UserName">
+            <summary>
+            管理员名称
+            </summary>
+        </member>
+        <member name="T:King.Api.Models.ArticleDto">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.ArticleDto.ArticleID">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.ArticleDto.CategoryID">
+            <summary>
+            分类ID
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.ArticleDto.Title">
+            <summary>
+            标题
+            </summary>      
+        </member>
+        <member name="P:King.Api.Models.ArticleDto.Keyword">
+            <summary>
+            关键字
+            </summary>        
+        </member>
+        <member name="P:King.Api.Models.ArticleDto.Detail">
+            <summary>
+            详情
+            </summary>      
+        </member>
+        <member name="P:King.Api.Models.ArticleDto.Author">
+            <summary>
+            作者
+            </summary>       
+        </member>
+        <member name="P:King.Api.Models.ArticleDto.LinkUrl">
+            <summary>
+            链接
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.ArticleDto.ImageUrl">
+            <summary>
+            图片
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.ArticleDto.Sort">
+            <summary>
+            排序
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.ArticleDto.ViewCount">
+            <summary>
+            浏览量
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.ArticleDto.CreateTime">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.ArticleDto.UpdateTime">
+            <summary>
+            更新时间
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.ArticleDto.UpdateBy">
+            <summary>
+            更新人
+            </summary>       
+        </member>
+        <member name="P:King.Api.Models.CategoryDto.Id">
+            <summary>
+            ID
+            </summary>       
+        </member>
+        <member name="P:King.Api.Models.CategoryDto.Pid">
+            <summary>
+            ID
+            </summary>       
+        </member>
+        <member name="P:King.Api.Models.CategoryDto.CategoryName">
+            <summary>
+            名称
+            </summary>       
+        </member>
+        <member name="P:King.Api.Models.CategoryDto.Sort">
+            <summary>
+            排序越大越靠后
+            </summary>
+        </member>
+        <member name="T:King.Api.Models.UserDto">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.UserDto.Id">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.UserDto.Telphone">
+            <summary>
+            手机号码
+            </summary>       
+        </member>
+        <member name="P:King.Api.Models.UserDto.Openid">
+            <summary>
+            用户的唯一标识
+            </summary>       
+        </member>
+        <member name="P:King.Api.Models.UserDto.Nickname">
+            <summary>
+             用户昵称
+            </summary>       
+        </member>
+        <member name="P:King.Api.Models.UserDto.Sex">
+            <summary>
+            用户的性别，值为1时是男性，值为2时是女性，值为0时是未知
+            </summary>       
+        </member>
+        <member name="P:King.Api.Models.UserDto.Province">
+            <summary>
+             用户个人资料填写的省份
+            </summary>       
+        </member>
+        <member name="P:King.Api.Models.UserDto.City">
+            <summary>
+            普通用户个人资料填写的城市
+            </summary>      
+        </member>
+        <member name="P:King.Api.Models.UserDto.Country">
+            <summary>
+            国家，如中国
+            </summary>       
+        </member>
+        <member name="P:King.Api.Models.UserDto.Headimgurl">
+            <summary>
+            用户头像，   
+            </summary>      
+        </member>
+        <member name="P:King.Api.Models.UserDto.Subscribe">
+            <summary>
+            用户是否订阅该公众号标识
+            值为0时，代表此用户没有关注该公众号，拉取不到其余信息。
+            </summary>       
+        </member>
+        <member name="P:King.Api.Models.UserDto.SubscribeTime">
+            <summary>
+            用户关注时间，为时间戳。如果用户曾多次关注，则取最后关注时间
+            </summary>     
+        </member>
+        <member name="P:King.Api.Models.UserDto.Unionid">
+            <summary>
+            只有在用户将公众号绑定到微信开放平台帐号后，才会出现该字段。
+            </summary>        
+        </member>
+        <member name="P:King.Api.Models.UserDto.TagidList">
+            <summary>
+            用户被打上的标签ID列表
+            </summary>       
+        </member>
+        <member name="P:King.Api.Models.TreeModel.Id">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.TreeModel.Name">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.TreeModel.Pid">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.TreeModel.Sort">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:King.Api.Models.TreeModel.Children">
+            <summary>
+            
+            </summary>
+        </member>
+    </members>
+</doc>

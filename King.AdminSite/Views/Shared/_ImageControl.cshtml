@@ -1,0 +1,7 @@
+﻿@model CtImageModel
+<div class="layout">
+    @foreach (var img in Model.ImageList)
+    {
+        <div style="text-align:center; width:100%;"><img src="@img.ImageUrl" class="img_auto" /></div>
+    }       
+</div>

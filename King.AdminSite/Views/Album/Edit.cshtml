@@ -1,0 +1,183 @@
+﻿
+@{
+    Layout = null;
+}
+@model AlbumModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>用户编辑</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="~/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="~/layuiadmin/style/admin.css" media="all">
+    <link rel="stylesheet" href="~/css/site.css" media="all">
+    <style>
+        .img {
+            margin-bottom: 15px;
+        }
+
+        .img_bg {
+            width: 300px;
+            cursor: pointer;
+            margin-left: 110px;         
+        }
+        .img_br {
+            width: 100%;
+            border: 1px dashed #c9c7c7;
+        }
+    </style>
+</head>
+<body>
+    <div class="layui-fluid">
+        <div class="layui-card">
+            <div class="layui-card-header">@(Model.AlbumId>0?"修改图片": "上传图片")</div>
+            <div class="layui-card-body" style="padding: 15px;">
+                <form class="layui-form" lay-filter="form-group">
+                    <div class="img">
+                        <label class="layui-form-label">图片</label>
+                        <div  class="img_bg" id="btnAddImage">
+                            @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                            {
+                                <img src="@Model.ImageUrl" class="img_br" />
+                            }
+                            else
+                            {
+                                <img src="/img/a12.png" style="width:100%;" />
+                            }
+                        </div>
+                        <div class="layui-form-mid layui-word-aux" style="margin-left:110px;">请上传jpg、jpeg、gif、png格式文件小于3M的图片</div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">标签</label>
+                        <div class="layui-input-block up_index w300">
+                            <select name="TagsId" lay-verify="required">
+                                <option value="">请选择</option>
+                                @foreach (var item in Model.TagsList.Where(p => p.TagsType == (int)King.Utils.Enums.TagsType.ImageList))
+                                {
+                                    <option value="@item.TagsId" @Html.Raw(Model.TagsId == item.TagsId ? "selected=\"selected\"" : "")>@Html.Raw(item.TagsName)</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">图片标题</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="Title" id="txtTitle" lay-verify="required" placeholder="请输入图片标题" autocomplete="off" class="layui-input w500" value="@Html.Raw(Model.Title)">
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-form-text">
+                        <label class="layui-form-label">图片描述</label>
+                        <div class="layui-input-block">
+                            <textarea name="Description" placeholder="请输入图片描述" class="layui-textarea w500">@Html.Raw(Model.Description)</textarea>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">作者</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="Author" placeholder="请输入作者" autocomplete="off" class="layui-input w500" value="@Html.Raw(Model.Author)">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">是否公开</label>
+                        <div class="layui-input-block">
+                            <div class="layui-col-md12">
+                                <input type="radio" name="IsActive" value="true" title="是" @Html.Raw(Model.IsActive == true ? " checked=\"checked\"" : "")>
+                                <input type="radio" name="IsActive" value="false" title="否" @Html.Raw(Model.IsActive == false ? " checked=\"checked\"" : "")>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="ImageUrl" id="txtImageUrl" lay-verify="imgurl" value="@Html.Raw(Model.ImageUrl)">
+                    <div class="layui-form-item layui-layout-admin">
+                        <div class="layui-input-block">
+                            <div class="layui-footer" style="left: 0;">
+                                <button class="layui-btn" lay-submit="" lay-filter="form-page">立即保存</button>
+                                <a href="/Album/Index" class="layui-btn layui-btn-primary">返回列表</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="~/layuiadmin/layui/layui.js"></script>
+    <script>
+        layui.config({
+            base: '../../layuiadmin/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['index', 'form', 'upload'], function () {
+            var $ = layui.$
+                , layer = layui.layer
+                , upload = layui.upload
+                , form = layui.form;
+
+            form.render();
+
+            //自动上传
+            upload.render({
+                elem: '#btnAddImage',
+                acceptMime: 'image/*',
+                exts: 'jpg|png|gif',
+                url: '/Upload/UploadImage',
+                auto: true,
+                done: function (res) {
+                    console.log(res);
+                    var imgHtml = '<img src=' + res.url + ' class="img_br">';
+                    $('#btnAddImage').html(imgHtml);
+                    $('#txtImageUrl').val(res.url);
+                    $('#txtTitle').val(res.imageName);
+                },
+                error: function (res) {
+                    console.log(res);
+                    layer.msg('上传失败，服务器错误！');
+                }
+            });
+
+            /* 自定义验证规则 */
+
+            form.verify({
+                required: function (value) {
+                    if (value.length < 1) {
+                        return '必填项不能为空';
+                    }
+                },
+                imgurl: function (value) {
+                    if (value.length < 1) {
+                        return '请上传图片';
+                    }
+                }
+            });
+
+            ///* 监听提交 */
+            form.on('submit(form-page)', function (data) {
+                console.log(data.field);
+                layer.confirm('确认保存信息吗？', function (index) {
+                    $.ajax({
+                        type: "post",
+                        url: '/Album/Edit/@Model.AlbumId',
+                        data: data.field,
+                        dataType: "json",
+                        success: function (res) {
+                            layer.close(index);
+                            if (res.code == 1000) {
+                                layer.msg(res.msg);
+                            }
+                            else {
+                                layer.msg(res.msg, { icon: 5 });
+                            }
+                        }
+                    });
+
+                });
+                //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+                return false;
+            });
+        });
+    </script>
+</body>
+</html>
+

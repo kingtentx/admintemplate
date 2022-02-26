@@ -1,0 +1,121 @@
+﻿
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>文件上传</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="~/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="~/layuiadmin/style/admin.css" media="all">
+</head>
+<body>
+    <div class="layui-fluid">
+        <div class="layui-card">
+            <form class="layui-form">
+                <div class="layui-card-header">文件上传</div>
+                <div class="layui-card-body" style="padding: 15px;">
+                    <div class="layui-form-item layui-form-text">
+                        <div class="layui-upload">
+                            <input type="text" value="请选择文件" name="upfile" id="filepath" readonly="readonly" style="height:32px;line-height:32px;width:500px;border:1px dotted #ccc">
+                            <input type="button" class="layui-btn" value="浏览" onclick="fileup.click()">
+                            <input type="file" id="fileup" style="display:none" multiple="multiple" onchange="upfile.value=this.value">
+                        </div>
+                        <div style="margin-top:10px;">
+                            <div class="layui-progress layui-progress-big" lay-showpercent="true" lay-filter="file_progress">
+                                <div class="layui-progress-bar" lay-percent="0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-layout-admin">
+                    <div class="layui-input-block">
+                        <div class="layui-footer" style="left: 0;">
+                            <button type="button" class="layui-btn" id="btnUpload" onclick="UploadStart()">开始上传</button>
+                            <a href="/Attachments/Index" class="layui-btn layui-btn-primary">返回列表</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="~/layuiadmin/layui/layui.js"></script>
+    <script src="~/layuiadmin/layui/lay/modules/element.js"></script>
+    <script>
+        layui.config({
+            base: '../../layuiadmin/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['index', 'element'], function () {
+            var $ = layui.$,
+                layer = layui.layer,
+                element = layui.element;
+
+            //开始上传
+            $('#btnUpload').on('click', function () {
+                var file = $("#fileup")[0].files[0];
+                AjaxFile(file, 0);
+            });
+
+            function AjaxFile(file, i) {
+                if (file != null) {
+                    var name = file.name, //文件名
+                        size = file.size, //总大小shardSize = 2 * 1024 * 1024,
+                        shardSize = 2 * 1024 * 1024,//以2MB为一个分片
+                        shardCount = Math.ceil(size / shardSize); //总片数
+                    if (i >= shardCount) {
+                        return;
+                    }
+                    //计算每一片的起始与结束位置
+                    var start = i * shardSize,
+                        end = Math.min(size, start + shardSize);
+                    //构造一个表单，FormData是HTML5新增的
+                    var form = new FormData();
+                    form.append("file", file.slice(start, end)); //slice方法用于切出文件的一部分
+                    form.append("totalSize", file.size);
+                    form.append("fileName", name);
+                    form.append("tempDirectory", file.lastModified);//临时文件目录
+                    form.append("total", shardCount); //总片数
+                    form.append("index", i + 1); //当前是第几片
+                    // UploadPath = file.lastModified
+                    //Ajax提交文件
+                    $.ajax({
+                        url: "/Upload/UploadAttachments",
+                        type: "POST",
+                        data: form,
+                        async: true, //异步
+                        processData: false, //很重要，告诉jquery不要对form进行处理
+                        contentType: false, //很重要，指定为false才能形成正确的Content-Type
+                        success: function (res) {
+                            i = res.number++;
+                            var num = Math.ceil(i * 100 / shardCount);
+                            element.progress('file_progress', num + '%')
+                            AjaxFile(file, i);
+                            if (res.mergeOk) {
+                                layer.msg('上传成功！');
+                                var fileup = $("#fileup");
+                                fileup.after(fileup.clone().val(""));
+                                fileup.remove();//清空input file
+                                $('#filepath').val('请选择文件');
+                            }
+                        },
+                        error: function (res) {
+                            console.log(res);
+                            layer.msg(res.responseText);
+                        }
+                    });
+                }
+                else {
+                    layer.msg('请选择上传文件！');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

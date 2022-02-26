@@ -1,0 +1,43 @@
+﻿@model List<Tags>
+@{
+    ViewDataDictionary data = new ViewDataDictionary(ViewData);
+}
+<div class="section news-section" id="articles-list-@data["Index"]">
+    <div class="container">
+        <!--news-section left start-->
+        <div class="am-u-md-9">
+
+            <div data-am-widget="list_news-" class="am-list-news am-list-news-default">
+                <div class="am-list-news-bd">
+                    <ul class="am-list" id="list-@data["Index"]-@data["DefaultTagsId"]">
+                    </ul>
+                </div>
+            </div>
+            <div class="page" style="text-align: center;">
+                <ul id="page-@data["Index"]-@data["DefaultTagsId"]" class="am-pagination am-pagination-default">
+                </ul>
+            </div>
+        </div>
+        <!--news-section left end-->
+        <!--news-section right start-->
+        <div class="am-u-md-3">
+            <div class="blog_sidebar">
+                <div class="widget">
+                    <h2 class="widget--title"><i class="am-icon-file-text-o"></i>资讯分类</h2>
+                    <ul>
+                        @foreach (var item in Model)
+                        {
+                            <li><a href="@($"/home/{ViewData["Path"]}/tags-{item.TagsId}.html")">@Html.Raw(item.TagsName)</a></li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!--news-section right end-->
+    </div>
+</div>
+<script>
+    $(function () {     
+        initData('articles',@data["Index"],@data["DefaultTagsId"],1);
+    });    
+</script>

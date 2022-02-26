@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>微信素材</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="~/layuiadmin/layui/css/layui.css" media="all">
+    <link href="~/css/imglist.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="layui-fluid">
+        <div class="layui-card">
+            <div class="layui-fluid layadmin-cmdlist-fluid">
+                <div class="layui-card-body">
+                    <div style="margin-top:10px;">
+                        <table class="layui-hide" id="app-table" lay-filter="app-table"></table>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" id="select_MeId" name="select_MeId" />
+            <input type="hidden" id="select_mediaId" name="select_mediaId" />
+            <input type="hidden" id="select_title" name="select_title" />
+        </div>
+    </div>
+    <script src="~/layuiadmin/layui/layui.js"></script>
+    <script>
+        layui.config({
+            base: '../../layuiadmin/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['index', 'table',], function () {
+            var $ = layui.$,
+                layer = layui.layer,
+                table = layui.table;
+
+            table.render({
+                elem: '#app-table',
+                url: '/wecat/GetMediaList?type=@King.Wecat.MediaType.News.GetHashCode()',
+                response: {
+                    statusName: 'code' //规定数据状态的字段名称，默认：code
+                    , statusCode: '1000 ' //规定成功的状态码，默认：0
+                    , msgName: 'msg' //规定状态信息的字段名称，默认：msg
+                    , countName: 'count' //规定数据总数的字段名称，默认：count
+                    , dataName: 'data' //规定数据列表的字段名称，默认：data
+                },
+                cols: [[
+                    { type: 'radio' }
+                    , { field: 'meId', width: 100, title: 'ID' }
+                    , { field: 'introduction', width: 200, title: '名称' }
+                    , { field: 'mediaId', title: 'MediaId' }
+                ]],
+                request: {
+                    pageName: 'pageIndex' //页码的参数名称，默认：page
+                    , limitName: 'pageSize' //每页数据量的参数名，默认：limit
+                },
+                page: true
+            });
+
+            //工具栏事件
+            table.on('radio(app-table)', function (obj) {
+                $('#select_MeId').val(obj.data.meId);
+                var name = '[' + obj.data.meId + '] ' + obj.data.introduction;
+                $('#select_mediaId').val(obj.data.mediaId);
+                $('#select_title').val(name);              
+            });
+
+        });
+
+    </script>
+</body>
+</html>

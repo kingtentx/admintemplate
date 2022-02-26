@@ -1,0 +1,250 @@
+﻿
+@{
+    Layout = null;
+}
+@model WxKeyWordsReplyModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>微信回复</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="~/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="~/layuiadmin/style/admin.css" media="all">
+    <link rel="stylesheet" href="~/css/site.css" media="all">
+</head>
+<body>
+    <form class="layui-form" lay-filter="form-group">
+        <div class="layui-fluid">
+            <div class="layui-card">
+                <div class="layui-card-body" style="padding: 15px;">
+
+                    <ul class="layui-nav layui-bg-green" lay-filter="">
+                        <li class="layui-nav-item"><a href="/Wecat/AutoReplyList">关键词回复</a></li>
+                        <li class="layui-nav-item layui-this"><a href="/Wecat/SubscribeReply">被关注回复</a></li>
+                    </ul>
+
+                </div>
+                @*<div class="layui-card-header">自动回复</div>*@
+                <div class="layui-form-item">
+                    <label class="layui-form-label">是否启用</label>
+                    <div class="layui-input-block">
+                        <input type="checkbox" name="chkIsActive" lay-skin="switch" @Html.Raw(Model.IsActive == true ? " checked=\"checked\"" : "") lay-text="启用|禁用">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">回复内容</label>
+                    <div class="layui-input-inline" style="width:700px;">
+                        <div class="layui-tab layui-tab-card" lay-filter="tab_data">
+                            <ul class="layui-tab-title" id="msg_type">
+                                <li id="text">文字</li>
+                                <li id="image">图片</li>
+                                <li id="voice">音频</li>
+                                <li id="video">视频</li>
+                            </ul>
+                            <div class="layui-tab-content">
+                                <div class="layui-tab-item " id="text_content">
+                                    <textarea name="Content" id="Content" lay-verify="text" placeholder="请输入回复内容" class="layui-textarea">@Html.Raw(Model.Content)</textarea>
+                                </div>
+                                <div class="layui-tab-item" id="image_content">
+                                    <button class="layui-btn" id="btnAddImage">选择图片</button>
+                                    <section style="margin-top:8px;">
+                                        <img id="CoverUrl" style=" width: 600px;" src="@Html.Raw(Model.CoverUrl)">
+                                    </section>
+                                    <input type="text" name="Image_MediaId" id="Image_MediaId" class="layui-input" value="@Html.Raw(Model.Image_MediaId)">
+                                </div>
+                                <div class="layui-tab-item" id="voice_content">
+                                    <button class="layui-btn" id="btnAddVoice">选择音频</button>
+                                    <input type="text" name="Voice_MediaId" id="Voice_MediaId" class="layui-input" value="@Html.Raw(Model.Voice_MediaId)">
+                                </div>
+                                <div class="layui-tab-item" id="video_content">
+                                    <button class="layui-btn" id="btnAddVideo">选择视频</button>
+                                    <input type="text" name="Video_MediaId" id="Voice_MediaId" class="layui-input" value="@Html.Raw(Model.Video_MediaId)">
+                                </div>
+                            </div>
+                        </div>
+                        <input type="text" name="Remark" id="Remark" readonly class="layui-input" value="@Html.Raw(Model.Remark)">
+                        @*<input type="text" name="MediaId" id="MediaId" readonly class="layui-input" value="@Html.Raw(Model.MediaId)">*@
+                    </div>
+                </div>
+                <div class="layui-form-item layui-layout-admin">
+                    <div class="layui-input-block">
+                        <div class="layui-footer" style="left: 0;">
+                            <button class="layui-btn" lay-submit="" lay-filter="form-page">立即保存</button>
+                            <button class="layui-btn  layui-btn-primary" id="btnCancel">取消</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </form>
+    <script src="~/layuiadmin/layui/layui.js"></script>
+    <script>
+        layui.config({
+            base: '../../layuiadmin/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['index', 'form','element'], function () {
+            var $ = layui.$
+                , element = layui.element
+                , layer = layui.layer
+                , form = layui.form;
+
+            $(function () {
+                var type = @Model.MsgType;
+                switch (type) {
+                    case 0:
+                        $('#text').addClass('layui-this');
+                        $('#text_content').addClass('layui-show');
+                        break;
+                    case 2:
+                        $('#image').addClass('layui-this');
+                        $('#image_content').addClass('layui-show');
+                        break;
+                    case 3:
+                        $('#voice').addClass('layui-this');
+                        $('#voice_content').addClass('layui-show');
+                        break;
+                    case 4:
+                        $('#video').addClass('layui-this');
+                        $('#video_content').addClass('layui-show');
+                        break;
+                }
+            });          
+
+            ///* 监听提交 */
+            form.on('submit(form-page)', function (data) {
+                var type = $('#msg_type .layui-this').attr('id');//字母
+                var msg = '';
+                switch (type) {
+                    case 'text':
+                          if (data.field.Content=='') {
+                              msg = '请输入回复内容';
+                          }
+                        break;
+                    case 'image':
+                        if (data.field.Image_MediaId == '') {
+                            msg = '请输选择图片内容';
+                        }
+                        break;
+                    case 'voice':
+                        if (data.field.Voice_MediaId == '') {
+                            msg = '请输入选择音频内容';
+                        }
+                        break;
+                    case 'video':
+                        if (data.field.Video_MediaId == '') {
+                            msg = '请输入回复视频内容';
+                        }
+                        break;
+                }              
+                if (msg != '') {
+                    layer.msg(msg, { icon: 5 });                    
+                    return false;
+                }
+
+                data.field.MsgType = type;
+                data.field.IsActive = data.field.chkIsActive == 'on' ? true : false;
+                data.field.CoverUrl = $('#CoverUrl').attr('src');
+
+                console.log(data.field);
+                $.ajax({
+                    type: "post",
+                    url: '/Wecat/EditSubscribeReply',
+                    data: data.field,
+                    dataType: "json",
+                    success: function (res) {
+                        if (res.code == 1000) {
+                            layer.alert(res.msg, function (index) {
+                                window.location.reload();//do something
+                                layer.close(index);
+                            });
+                        }
+                        else {
+                            layer.msg(res.msg, { icon: 5 });
+                        }
+                    }
+                });
+                //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+                return false;
+            });
+
+            //选择封面
+            $('#btnAddImage').click(function () {
+                layer.open({
+                    type: 2,
+                    maxmin: true,
+                    title: '选择图片',
+                    content: '/Wecat/WxImageInfo',
+                    area: ['800px', '600px'],
+                    btn: ['确定', '取消'],
+                    yes: function (index, layero) {
+                        var media_id = layero.find('iframe').contents().find('input[name=select_mediaId]').val();
+                        //console.log(media_id);
+                        $('#Image_MediaId').val(media_id);
+                        var coverUrl = layero.find('iframe').contents().find('input[name=select_imgUrl]').val();
+                        //console.log(coverUrl);
+                        $('#CoverUrl').attr('src', coverUrl);
+                        $('#Remark').val('');
+                        layer.close(index); //关闭弹层
+                    }
+                });
+                //阻止刷新
+                return false;
+            });
+
+            //选择音频
+            $('#btnAddVoice').click(function () {
+                layer.open({
+                    type: 2,
+                    maxmin: true,
+                    title: '选择音频',
+                    content: '/Wecat/WxMediaInfo?type=@King.Wecat.MediaType.Voice.GetHashCode()',
+                    area: ['800px', '600px'],
+                    btn: ['确定', '取消'],
+                    yes: function (index, layero) {
+                        var media_id = layero.find('iframe').contents().find('input[name=select_mediaId]').val();
+                        $('#Voice_MediaId').val(media_id);
+                        //var name = layero.find('iframe').contents().find('input[name=select_fileName]').val();
+                        //$('#Remark').val(name);
+                        layer.close(index); //关闭弹层
+                    }
+                });
+                //阻止刷新
+                return false;
+            });
+
+            //选择视频
+            $('#btnAddVideo').click(function () {
+                layer.open({
+                    type: 2,
+                    maxmin: true,
+                    title: '选择视频',
+                    content: '/Wecat/WxMediaInfo?type=@King.Wecat.MediaType.Video.GetHashCode()',
+                    area: ['800px', '600px'],
+                    btn: ['确定', '取消'],
+                    yes: function (index, layero) {
+                        var media_id = layero.find('iframe').contents().find('input[name=select_mediaId]').val();
+                        $('#Video_MediaId').val(media_id);
+                        //var name = layero.find('iframe').contents().find('input[name=select_fileName]').val();
+                        //$('#Remark').val(name);
+                        layer.close(index); //关闭弹层
+                    }
+                });
+                //阻止刷新
+                return false;
+            });
+
+            form.render(null, 'form-group');
+
+            $('#btnCancel').click(function () {
+                location.reload();
+            });
+        });
+    </script>
+</body>
+</html>

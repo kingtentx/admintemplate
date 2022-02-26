@@ -1,0 +1,56 @@
+﻿@model List<Tags>
+@{
+    ViewDataDictionary data = new ViewDataDictionary(ViewData);
+}
+
+<div class="container" id="jobs-list-@data["Index"]">
+    <div class="join-container">
+        <div class="am-g">
+            <div class="am-u-md-9">
+                <div class="careers--vacancies">
+                    <div class="am-panel-group" id="list-@data["Index"]-@data["DefaultTagsId"]">
+
+                        @*<div class="am-panel am-panel-default">
+                                <div class="am-panel-hd">
+                                    <h4 class="am-panel-title" data-am-collapse="{parent: '#accordion', target: '#do-not-say-1'}">
+                                        高级产品经理
+                                    </h4>
+                                </div>
+                                <div id="do-not-say-1" class="am-panel-collapse am-collapse">
+                                    <div class="am-panel-bd">
+                                        <div class="vacancies--item_content js-accordion--pane_content " style="">
+                                            <h5>职位描述：</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>*@
+
+                    </div>
+                    <div class="page" style="text-align: center;">
+                        <ul id="page-@data["Index"]-@data["DefaultTagsId"]" class="am-pagination am-pagination-default">
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="am-u-md-3">
+                <div class="blog_sidebar">
+                    <div class="widget">
+                        <h2 class="widget--title"><i class="am-icon-file-text-o"></i>招聘地区</h2>
+                        <ul>
+                            @foreach (var item in Model)
+                            {
+                                <li><a href="@($"/home/{ViewData["Path"]}/tags-{item.TagsId}.html")">@Html.Raw(item.TagsName)</a></li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        initData('jobs',@data["Index"],@data["DefaultTagsId"],1);
+    });
+</script>

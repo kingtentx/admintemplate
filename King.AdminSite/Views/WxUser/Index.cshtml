@@ -1,0 +1,208 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>用户管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="~/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="~/layuiadmin/style/admin.css" media="all">
+    <style type="text/css">
+        .layui-table-cell {
+            height: inherit;
+        }
+    </style>
+</head>
+<body>
+    <div class="layui-card layadmin-header">
+        <div class="layui-breadcrumb" lay-filter="breadcrumb">
+            <a lay-href="">主页</a>
+            <a><cite>用户</cite></a>
+            <a><cite>用户列表</cite></a>
+        </div>
+    </div>
+    <div class="layui-fluid">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <!---搜索条件 begin--->
+                    <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">openid</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="openid" placeholder="请输入" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <button class="layui-btn layuiadmin-btn-admin" lay-submit="" lay-filter="app-search">
+                                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                                </button>
+                                @if ((bool)ViewData[PageCode.PAGE_Button_Edit] == true)
+                                {
+                                    <button class="layui-btn layuiadmin-btn-admin" id="btnGetUsers">同步用户</button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <!----搜索条件 end--->
+                    <div class="layui-card-body">
+                        <table class="layui-hide" id="app-table" lay-filter="app-table"></table>
+                        @*<script type="text/html" id="app-table-bar">
+                                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>更新</a>
+                            </script>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="~/layuiadmin/layui/layui.js"></script>
+    <script src="~/js/site.js"></script>
+    <script>
+        layui.config({
+            base: '../../layuiadmin/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['index', 'table'], function () {
+            var $ = layui.$,
+                form = layui.form,
+                table = layui.table;
+
+            table.render({
+                elem: '#app-table',
+                url: '/wxuser/getlist',
+                response: {
+                    statusName: 'code', //规定数据状态的字段名称，默认：code
+                    statusCode: '1000 ', //规定成功的状态码，默认：0
+                    msgName: 'msg', //规定状态信息的字段名称，默认：msg
+                    countName: 'count', //规定数据总数的字段名称，默认：count
+                    dataName: 'data' //规定数据列表的字段名称，默认：data
+                },
+                cols: [[
+                    { field: 'id', width: 80, title: 'ID' },
+                    { field: 'openid', width: 300, title: 'openid' },
+                    { field: 'nickname', title: '用户名' },
+                    {
+                        field: 'headimgurl', width: 90, title: '头像', templet: function (d) {
+                            var str = '<img src="' + d.headimgurl + '" style="width:50px;"/>';
+                            return str;
+                        }
+                    },
+                    {
+                        field: 'sex', width: 80, title: '性别', templet: function (d) {
+                            var str = '未知';
+                            if (d.sex == 1) {
+                                str = '男';
+                            } else if (d.sex == 2) {
+                                str = '女';
+                            }
+                            return str;
+                        }
+                    },
+                    {
+                        field: 'subscribe', width: 120, title: '是否关注', templet: function (d) {
+                            var str = '';
+                            if (d.subscribe == 1) {
+                                str = '已关注';
+                            } else {
+                                str = '未关注';
+                            }
+                            return str;
+                        }
+                    },
+                    {
+                        field: 'subscribe_time', width: 200, title: '关注时间', minWidth: 200, templet: function (d) {
+                            var str = '';
+                            if (d.subscribe == 1) {
+                                str = timestampToTime(d.subscribe_time);
+                            } else {
+                                str = d.unsubscribeTime;
+                            }
+                            return str;
+                        }
+                    }
+                ]],
+                request: {
+                    pageName: 'pageIndex', //页码的参数名称，默认：page
+                    limitName: 'pageSize' //每页数据量的参数名，默认：limit
+                },
+                page: true
+            });
+
+            ////监听工具条
+            //table.on('tool(app-table)', function (obj) {
+            //    var data = obj.data;
+            //    if (obj.event === 'edit') {
+            //        layer.confirm("确认更新?", function (index) {
+            //            var loading = layer.load(1, {
+            //                shade: 0.3
+            //            });
+            //            $.ajax({
+            //                url: "/wxuser/GetUserInfo",
+            //                data: { 'openid': data.openid },
+            //                type: "get",
+            //                dataType: "json",
+            //                success: function (res) {
+            //                    console.log(res);
+            //                    if (res.code == 1000) {
+            //                        layer.close(loading);
+            //                        layer.alert(res.msg, function (index) {
+            //                            location.reload('#app-table');
+            //                            layer.close(index);
+            //                        });
+            //                    }
+            //                    else {
+            //                        layer.msg(res.msg);
+            //                    }
+            //                }
+            //            });
+            //        });
+            //    }
+            //});
+
+            //监听搜索
+            form.on('submit(app-search)', function (data) {
+                var field = data.field;
+
+                //执行重载
+                table.reload('app-table', {
+                    where: field
+                });
+            });
+
+
+            $('#btnGetUsers').click(function () {
+                layer.confirm("确认同步用户信息？用户数据多同步时间较长，请耐心等待", function (index) {
+                    var loading = layer.load(0, {
+                        shade: 0.3
+                    });
+                    $.ajax({
+                        type: "get",
+                        url: "/wxuser/SyncUserInfo",
+                        success: function (res) {
+                            console.log(res);
+                            layer.close(loading);
+                            if (res.code == 1000) {
+                                layer.alert(res.msg, function (index) {
+                                    location.reload('#app-table');
+                                    layer.close(index);
+                                });
+                            }
+                            else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    });
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>

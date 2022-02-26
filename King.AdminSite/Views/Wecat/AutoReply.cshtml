@@ -1,0 +1,373 @@
+﻿
+@{
+    Layout = null;
+}
+@model WxKeyWordsReplyModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>微信回复</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="~/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="~/layuiadmin/style/admin.css" media="all">
+    <link rel="stylesheet" href="~/css/site.css" media="all">
+</head>
+<body>
+    <form class="layui-form" lay-filter="form-group">
+        <div class="layui-fluid">
+            <div class="layui-card">
+                <div class="layui-card-body" style="padding: 15px;">
+                    <ul class="layui-nav layui-bg-green" lay-filter="">
+                        <li class="layui-nav-item layui-this"><a href="/Wecat/AutoReplyList">关键词回复</a></li>
+                        <li class="layui-nav-item"><a href="/Wecat/SubscribeReply">被关注回复</a></li>
+                    </ul>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">是否启用</label>
+                    <div class="layui-input-block">
+                        <input type="checkbox" name="chkIsActive" lay-skin="switch" @Html.Raw(Model.IsActive == true ? " checked=\"checked\"" : "") lay-text="启用|禁用">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">规则名称</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="KeyName" required lay-verify="required" placeholder="请输入规则名称" autocomplete="off" class="layui-input w500" value="@Html.Raw(Model.KeyName)">
+                    </div>
+                    <div class="layui-form-mid layui-word-aux" style="margin-left:320px;">规则名称最多60字</div>
+                </div>
+                <div id="keys_item">
+                    @if (Model.WxKeyWordsList.Count > 0)
+                    {
+                        int i = 0;
+                        foreach (var item in Model.WxKeyWordsList)
+                        {
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">关键词</label>
+                                <div class="layui-input-inline">
+                                    <select name="KeyType" lay-verify="required">
+                                        <option value="0" @Html.Raw(item.KeyType == 0 ? " selected=\"selected\"" : "")>全匹配</option>
+                                        <option value="1" @Html.Raw(item.KeyType == 1 ? " selected=\"selected\"" : "")>半匹配</option>
+                                    </select>
+                                </div>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="KeyWords" keywordsId="@item.Id" required lay-verify="required" placeholder="请输入关键词" autocomplete="off" class="layui-input w300" value="@Html.Raw(item.KeyWords)">
+                                </div>
+                                <div class="layui-input-inline m_l120 " style="height:38px;line-height:38px;">
+                                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm keys_add"><i class="layui-icon">&#xe654;</i></button>
+                                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm keys_del"><i class="layui-icon">&#xe67e;</i></button>
+                                </div>
+                            </div>
+                            i++;
+                        }
+                    }
+                    else
+                    {
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">关键词</label>
+                            <div class="layui-input-inline">
+                                <select name="KeyType" lay-verify="required">
+                                    <option value="0">全匹配</option>
+                                    <option value="1">半匹配</option>
+                                </select>
+                            </div>
+                            <div class="layui-input-inline">
+                                <input type="text" name="KeyWords" keywordsId="0" required lay-verify="required" placeholder="请输入关键词" autocomplete="off" class="layui-input w300">
+                            </div>
+                            <div class="layui-input-inline m_l120 " style="height:38px;line-height:38px;">
+                                <button type="button" class="layui-btn layui-btn-primary layui-btn-sm keys_add"><i class="layui-icon">&#xe654;</i></button>
+                                <button type="button" class="layui-btn layui-btn-primary layui-btn-sm keys_del"><i class="layui-icon">&#xe67e;</i></button>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">回复内容</label>
+                    <div class="layui-input-inline" style="width:700px;">
+                        <div class="layui-tab layui-tab-card" lay-filter="tab_data">
+                            <ul class="layui-tab-title" id="msg_type">
+                                <li id="text">文字</li>
+                                <li id="image">图片</li>
+                                <li id="voice">音频</li>
+                                <li id="video">视频</li>
+                                <li id="news">图文消息</li>
+                            </ul>
+                            <div class="layui-tab-content">
+                                <div class="layui-tab-item" id="text_content">
+                                    <textarea name="Content" required lay-verify="text" placeholder="请输入回复内容" class="layui-textarea">@Html.Raw(Model.Content)</textarea>
+                                </div>
+                                <div class="layui-tab-item" id="image_content">
+                                    <button class="layui-btn" id="btnAddImage">选择图片</button>
+                                    <section style="margin-top:8px;">
+                                        <img id="CoverUrl" style=" width: 600px;" src="@Html.Raw(Model.CoverUrl)">
+                                    </section>
+                                    <input type="text" name="Image_MediaId" id="Image_MediaId" class="layui-input" value="@Html.Raw(Model.Image_MediaId)">
+                                </div>
+                                <div class="layui-tab-item" id="voice_content">
+                                    <button class="layui-btn" id="btnAddVoice">选择音频</button>
+                                    <input type="text" name="Voice_MediaId" id="Voice_MediaId" class="layui-input" value="@Html.Raw(Model.Voice_MediaId)">
+                                </div>
+                                <div class="layui-tab-item" id="video_content">
+                                    <button class="layui-btn" id="btnAddVideo">选择视频</button>
+                                    <input type="text" name="Video_MediaId" id="Voice_MediaId" class="layui-input" value="@Html.Raw(Model.Video_MediaId)">
+                                </div>
+                                <div class="layui-tab-item" id="news_content">
+                                    <button class="layui-btn" id="btnAddNews">选择图文</button>
+                                    <input type="text" name="MeId" id="MeId" class="layui-input" value="@Html.Raw(Model.MeId)">
+                                    <input type="text" name="News_MediaId" id="News_MediaId" class="layui-input" value="@Html.Raw(Model.News_MediaId)">
+                                </div>
+                            </div>
+                        </div>
+                        <input type="text" name="Remark" id="Remark" readonly class="layui-input" value="@Html.Raw(Model.Remark)">
+
+                    </div>
+                </div>
+                <div class="layui-form-item" pane>
+                    <label class="layui-form-label">回复方式</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="ReplyType" value="0" title="回复全部" @Html.Raw(Model.ReplyType == 0 ? " checked=\"checked\"" : "")>
+                        <input type="radio" name="ReplyType" value="1" title="随机回复一条" @Html.Raw(Model.ReplyType == 1 ? " checked=\"checked\"" : "")>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-layout-admin">
+                    <div class="layui-input-block">
+                        <div class="layui-footer" style="left: 0;">
+                            <button class="layui-btn" lay-submit="" lay-filter="form-page">立即保存</button>
+                            <a href="/Wecat/AutoReplyList" class="layui-btn layui-btn-primary">返回列表</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="~/layuiadmin/layui/layui.js"></script>
+    <script>
+        layui.config({
+            base: '../../layuiadmin/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['index', 'form', 'element'], function () {
+            var $ = layui.$
+                , element = layui.element
+                , layer = layui.layer
+                , form = layui.form;
+
+            $(function () {
+                var type = @Model.MsgType.Split(',')[0];//默认显示Tab
+                switch (type) {
+                    case 0:
+                        $('#text').addClass('layui-this');
+                        $('#text_content').addClass('layui-show');
+                        break;
+                    case 1:
+                        $('#news').addClass('layui-this');
+                        $('#news_content').addClass('layui-show');
+                        break;
+                    case 2:
+                        $('#image').addClass('layui-this');
+                        $('#image_content').addClass('layui-show');
+                        break;
+                    case 3:
+                        $('#voice').addClass('layui-this');
+                        $('#voice_content').addClass('layui-show');
+                        break;
+                    case 4:
+                        $('#video').addClass('layui-this');
+                        $('#video_content').addClass('layui-show');
+                        break;
+                }
+            });
+
+            //增加关键词
+            $('#keys_item').on('click', '.keys_add', function () {
+                var index = $('#keys_item .layui-form-item').length;             
+                if (index <= 10) {
+                    var strHtml = '<div class="layui-form-item">';
+                    strHtml += '<label class="layui-form-label"> 关键词</label >';
+                    strHtml += '<div class="layui-input-inline">';
+                    strHtml += '<select name="KeyType" lay-verify="required">';
+                    strHtml += '<option value="0">全匹配</option>';
+                    strHtml += '<option value="1">半匹配</option>';
+                    strHtml += '</select>';
+                    strHtml += '</div>';
+                    strHtml += '<div class="layui-input-inline">';
+                    strHtml += '<input type="text" name="KeyWords" keywordsId="0"  required lay-verify="required" placeholder="请输入关键词" autocomplete="off" class="layui-input w300">';
+                    strHtml += '</div>';
+                    strHtml += '<div class="layui-input-inline m_l120 " style="height:38px;line-height:38px;">';
+                    strHtml += '<button type="button" class="layui-btn layui-btn-primary layui-btn-sm keys_add"><i class="layui-icon">&#xe654;</i></button>';
+                    strHtml += '<button type="button" class="layui-btn layui-btn-primary layui-btn-sm keys_del"><i class="layui-icon">&#xe67e;</i></button>';
+                    strHtml += '</div>';
+                    strHtml += '</div>';
+
+                    $('#keys_item').append(strHtml);
+                    form.render();
+                }
+                else {
+                    layer.msg('最多添加10条关键词');
+                }
+            });
+            //删除关键词
+            $('#keys_item').on('click', '.keys_del', function () {
+                var len = $('#keys_item .layui-form-item').length;
+                if (len > 1) {
+                    $(this).parent().parent().remove();
+                }
+            });
+
+            //tab切换事件
+            element.on('tab(tab_data)', function (data) {
+                var type = this.getAttribute('id');
+                if (type == 'text') {
+                    $('#MediaId').hide();
+                }
+                else {
+                    $('#MediaId').show();
+                }
+                $('#MediaId').val('');
+                $('#MeId').val('0');
+            });
+
+            ///* 监听提交 */
+            form.on('submit(form-page)', function (data) { 
+                var jsonData = [];
+                $('#keys_item .layui-form-item').each(function () {                 
+                    var keywordsId = $(this).find('input[name=KeyWords]').attr("keywordsId");
+                    var keyType = $(this).find('select[name=KeyType]').val();
+                    var keyWords = $(this).find('input[name=KeyWords]').val();
+                    if (keyWords != '') {
+                        var obj = {
+                            "id": keywordsId,
+                            "keyId": @Model.KeyId,
+                            "keyType": keyType,
+                            "keyWords": keyWords
+                        };
+                        jsonData.push(obj);
+                    }                
+                });              
+
+                data.field.WxKeyWordsList = jsonData;
+                data.field.IsActive = data.field.chkIsActive == 'on' ? true : false;
+                data.field.CoverUrl = $('#CoverUrl').attr('src');              
+
+                if (data.field.Content == '' && data.field.MeId == '0' && data.field.Image_MediaId == '' && data.field.Voice_MediaId == '' && data.field.Video_MediaId == '') {
+                    layer.msg('请选择回复内容', { icon: 5 });
+                    return false;
+                }
+
+                console.log(data.field);
+                $.ajax({
+                    type: "post",
+                    url: '/Wecat/EditAutoReply?id=@Model.KeyId',
+                    data: data.field,
+                    dataType: "json",
+                    success: function (res) {
+                        if (res.code == 1000) {
+                            layer.alert(res.msg, function (index) {
+                                //window.location.reload();//do something
+                                layer.close(index);
+                            });
+                        }
+                        else {
+                            layer.msg(res.msg, { icon: 5 });
+                        }
+                    }
+                });
+                //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+                return false;
+            });
+
+            //选择封面
+            $('#btnAddImage').click(function () {
+                layer.open({
+                    type: 2,
+                    maxmin: true,
+                    title: '选择图片',
+                    content: '/Wecat/WxImageInfo',
+                    area: ['800px', '600px'],
+                    btn: ['确定', '取消'],
+                    yes: function (index, layero) {
+                        var media_id = layero.find('iframe').contents().find('input[name=select_mediaId]').val();
+                        $('#Image_MediaId').val(media_id);
+                        var coverUrl = layero.find('iframe').contents().find('input[name=select_imgUrl]').val();
+                        $('#CoverUrl').attr('src', coverUrl);
+                        //$('#Remark').val('');
+                        layer.close(index); //关闭弹层
+                    }
+                });
+                //阻止刷新
+                return false;
+            });
+
+            //选择音频
+            $('#btnAddVoice').click(function () {
+                layer.open({
+                    type: 2,
+                    maxmin: true,
+                    title: '选择音频',
+                    content: '/Wecat/WxMediaInfo?type=@King.Wecat.MediaType.Voice.GetHashCode()',
+                    area: ['800px', '600px'],
+                    btn: ['确定', '取消'],
+                    yes: function (index, layero) {
+                        var media_id = layero.find('iframe').contents().find('input[name=select_mediaId]').val();
+                        $('#Voice_MediaId').val(media_id);
+                        //var name = layero.find('iframe').contents().find('input[name=select_fileName]').val();
+                        //$('#Remark').val(name);
+                        layer.close(index); //关闭弹层
+                    }
+                });
+                //阻止刷新
+                return false;
+            });
+
+            //选择视频
+            $('#btnAddVideo').click(function () {
+                layer.open({
+                    type: 2,
+                    maxmin: true,
+                    title: '选择视频',
+                    content: '/Wecat/WxMediaInfo?type=@King.Wecat.MediaType.Video.GetHashCode()',
+                    area: ['800px', '600px'],
+                    btn: ['确定', '取消'],
+                    yes: function (index, layero) {
+                        var media_id = layero.find('iframe').contents().find('input[name=select_mediaId]').val();
+                        $('#Video_MediaId').val(media_id);
+                        //var name = layero.find('iframe').contents().find('input[name=select_fileName]').val();
+                        //$('#Remark').val(name);
+                        layer.close(index); //关闭弹层
+                    }
+                });
+                //阻止刷新
+                return false;
+            });
+
+            //选择图文
+            $('#btnAddNews').click(function () {
+                layer.open({
+                    type: 2,
+                    maxmin: true,
+                    title: '选择图文',
+                    content: '/Wecat/WxNewsInfo',
+                    area: ['800px', '600px'],
+                    btn: ['确定', '取消'],
+                    yes: function (index, layero) {
+                        var news_id = layero.find('iframe').contents().find('input[name=select_MeId]').val();
+                        $('#MeId').val(news_id);
+                        var media_id = layero.find('iframe').contents().find('input[name=select_mediaId]').val();
+                        $('#News_MediaId').val(media_id);
+                        //var name = layero.find('iframe').contents().find('input[name=select_title]').val();
+                        //$('#Remark').val(name);
+                        layer.close(index); //关闭弹层
+                    }
+                });
+                //阻止刷新
+                return false;
+            });
+
+        });
+    </script>
+</body>
+</html>

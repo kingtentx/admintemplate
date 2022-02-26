@@ -1,0 +1,91 @@
+﻿
+@{
+    List<NavigationModel> list = (List<NavigationModel>)ViewData["NavList"];
+    SiteConfigModel site = ViewBag.SiteInfo;
+}
+<!--===========layout-header-start================-->
+<div class="layout-header am-hide-sm-only">
+    <div class="header-box" data-am-sticky>
+        <div class="nav-contain">
+            <div class="nav-inner">
+                <div class="am-u-lg-2 am-u-sm-12">
+                    <div class="logo" style="line-height: 75px;">
+                        <a href="#"><img src="@site.Logo" alt="" style="width: 150px;" /></a>
+                    </div>
+                </div>
+                @if (list.Count() > 0)
+                {
+                    <ul class="am-nav am-nav-pills am-nav-justify">
+                        @foreach (var item in list.Where(p => p.Pid == 0))
+                        {
+                            <li>
+                                <a href="@Html.Raw($"/home/{item.RewriteName.ToLower()}.html")">@Html.Raw(item.NavigationName)</a>
+                                @{ var sub_list = list.Where(p => p.Pid == item.Id);
+                                    if (sub_list.Count() > 0)
+                                    {
+                                        <ul class="sub-menu">
+                                            @foreach (var sub in list.Where(p => p.Pid == item.Id))
+                                            {
+                                                <li class="menu-item"><a href="@Html.Raw($"/home/{sub.RewriteName.ToLower()}.html")">@Html.Raw(sub.NavigationName)</a></li>
+                                            }
+                                        </ul>
+
+                                    }
+                                }
+                            </li>
+
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<!--===========layout-header-end================-->
+<!--mobile header start-->
+<div class="m-header">
+    <div class="am-g am-show-sm-only">
+        <div class="am-u-sm-2">
+            <div class="menu-bars">
+                <a href="#doc-oc-demo1" data-am-offcanvas="{effect: 'push'}"><i class="am-menu-toggle-icon am-icon-bars"></i></a>
+                <!-- 侧边栏内容 -->
+                <nav data-am-widget="menu" class="am-menu  am-menu-offcanvas1" data-am-menu-offcanvas>
+                    <a href="javascript: void(0)" class="am-menu-toggle"></a>
+                    <div class="am-offcanvas">
+                        <div class="am-offcanvas-bar">
+                            @if (list.Count() > 0)
+                            {
+                                <ul class="am-menu-nav am-avg-sm-1">
+                                    @foreach (var item in list.Where(p => p.Pid == 0))
+                                    {
+                                        <li class="am-parent">
+                                            <a href="@Html.Raw($"/home/{item.RewriteName.ToLower()}.html")" class="">@Html.Raw(item.NavigationName)</a>
+                                            @{ var msub_list = list.Where(p => p.Pid == item.Id);
+                                                if (msub_list.Count() > 0)
+                                                {
+                                                    <ul class="am-menu-sub am-collapse ">
+                                                        @foreach (var msub in list.Where(p => p.Pid == item.Id))
+                                                        {
+                                                            <li class=""><a href="@Html.Raw($"/home/{msub.RewriteName.ToLower()}.html")" class="">@Html.Raw(msub.NavigationName)</a></li>
+                                                        }
+                                                    </ul>
+                                                }
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        <div class="am-u-sm-5 am-u-end">
+            <div class="m-logo">
+                <a href=""><img src="@site.Logo" alt=""></a>
+            </div>
+        </div>
+    </div>
+    <!--mobile header end-->
+</div>
+<!--mobile header endt-->

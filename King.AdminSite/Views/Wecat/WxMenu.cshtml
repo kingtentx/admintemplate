@@ -1,0 +1,364 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>微信菜单</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="~/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="~/layuiadmin/style/admin.css" media="all">
+</head>
+<body>
+    <form class="layui-fluid layui-form">
+        <div class="layui-card layadmin-header">
+            <div class="layui-breadcrumb" lay-filter="breadcrumb">
+                <a lay-href="">主页</a>
+                <a><cite>微信菜单</cite></a>
+                <a><cite>菜单列表</cite></a>
+            </div>
+        </div>
+
+        <div class="layui-card">
+            <div class="layui-card-header">
+                <div style="padding-bottom: 10px;">
+                    <a class="layui-btn layuiadmin-btn-admin" id="btnAdd">添加一级菜单</a>
+                    <a class="layui-btn layuiadmin-btn-admin" id="btnSave">保存菜单</a>
+                </div>
+            </div>
+            <div class="layui-card-body">
+                <table id="tree-table" class="layui-table" lay-filter="tree-table"></table>
+                <script type="text/html" id="tree-table-operate">
+                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+                    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+                </script>
+            </div>
+        </div>
+
+        <div id="div_box" class="layui-hide layui-form">
+            <div class="layui-card">
+                <div class="layui-card-body">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">菜单名称</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="txtMenuName" name="txtMenuName" lay-verify="required" class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">菜单类型</label>
+                        <div class="layui-inline" style="width:190px;">
+                            <select name="selType" id="selType" lay-verify="required" lay-filter="selType">
+                                <option value="">请选择</option>
+                                <option value="root">一级菜单</option>
+                                <option value="click">事件Key</option>
+                                <option value="view">链接</option>
+                                <option value="media_id">media_id</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item isShow">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">菜单值</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="txtMenuValue" name="txtMenuValue" class="layui-input" style="width:400px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">排序</label>
+                            <div class="layui-input-inline">
+                                <input type="number" id="txtMenuSort" name="txtMenuSort" class="layui-input" lay-verify="required" value="0" style="width:100px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="~/layuiadmin/layui/layui.js"></script>
+    <script>
+        layui.config({
+            base: '../../layuiadmin/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['index', 'table', 'form', 'treetable'], function () {
+            var $ = layui.$,
+                layer = layui.layer,
+                table = layui.table,
+                form = layui.form,
+                treetable = layui.treetable;
+
+            /* 自定义验证规则 */
+            form.verify({
+                required: function (value) {
+                    if (value.length == 0) {
+                        return '必填项不能为空';
+                    }
+                }
+            });
+
+            $.ajax({
+                type: 'get',
+                url: '/Wecat/GetWxMenu',
+                dataType: 'json',
+                success: function (res) {
+                    //console.log(res);
+                    renderTable(res.data);
+                }
+            });
+
+            //渲染表格
+            var renderTable = function (data) {
+                layer.load(2);
+                treetable.render({
+                    treeColIndex: 1,//树形图标显示在第几列
+                    treeSpid: 0,    //最上级的父级id
+                    treeIdName: 'id',
+                    treePidName: 'pid',
+                    treeDefaultClose: false,//是否默认折叠
+                    treeLinkage: false,// 父级展开时是否自动展开所有子级
+                    elem: '#tree-table',
+                    data: data,
+                    response: {
+                        statusName: 'code' //规定数据状态的字段名称，默认：code
+                        , statusCode: '1000 ' //规定成功的状态码，默认：0
+                        , msgName: 'msg' //规定状态信息的字段名称，默认：msg
+                        , countName: 'count' //规定数据总数的字段名称，默认：count
+                        , dataName: 'data' //规定数据列表的字段名称，默认：data
+                    },
+                    page: false,
+                    cols: [[
+                        { type: 'numbers' },
+                        { field: 'name', width: 250, title: '名称' },
+                        { field: 'value', title: '菜单值' },
+                        { field: 'sort', width: 80, title: '排序' },
+                        {
+                            field: 'type', width: 240, title: '菜单类型',
+                            templet: function (d) {
+                                var str = '';
+                                switch (d.type) {
+                                    case 'view':
+                                        str = '<span class="layui-btn layui-btn-primary layui-btn-xs">链接</span>';
+                                        break;
+                                    case 'click':
+                                        str = '<span class="layui-btn layui-btn-primary layui-btn-xs">Key</span>';
+                                        break;
+                                    case 'media_id':
+                                        str = '<span class="layui-btn layui-btn-primary layui-btn-xs">media_id</span>';
+                                        break;
+                                    default:
+                                        str = '<span class="layui-btn layui-btn-primary layui-btn-xs">一级菜单</span><a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="add"><i class="layui-icon layui-icon-addition"></i>添加子菜单</a>';
+                                        break;
+                                }
+                                return str;
+                            }
+                        },
+                        { align: 'center', width: 200, title: '操作', toolbar: '#tree-table-operate' }
+                    ]],
+                    done: function () {
+                        layer.closeAll('loading');
+                    }
+                });
+            };
+
+            //监听工具条
+            table.on('tool(tree-table)', function (obj) {
+                var data = obj.data;
+                var datatable = table.cache['tree-table'];
+                localStorage.setItem('current_obj', JSON.stringify(data));
+                localStorage.setItem('current_event', obj.event);
+                //console.log(data);
+                if (obj.event === 'edit') {
+                    var dom = $('#div_box').clone();
+                    dom.find('#txtMenuName').attr('value', data.name);
+                    dom.find('#txtMenuValue').attr('value', data.value);
+                    dom.find('#selType').find('option[value=' + data.type + ']').attr('selected', true);
+                    dom.find('#txtMenuSort').attr('value', data.sort);
+                    if (data.level == 2) {
+                        dom.find('#selType').find('option[value="root"]').remove();
+                        dom.find('.isShow').show();
+                    }
+                    else {
+                        var type = dom.find('#selType').val();
+                        if (data.level == 1 && type == 'root') {
+                            dom.find('.isShow').hide();
+                        }
+                    }
+                    newOpen(datatable, obj, dom.html());
+
+                } else if (obj.event === 'add') {
+                    var sub_len = datatable.filter(item => item.pid == data.id).length;
+                    if (sub_len >= 5) {
+                        layer.msg('子菜单最多添加5条！');
+                        return;
+                    }
+                    var dom = $('#div_box').clone();
+                    dom.find('.isShow').show();
+                    dom.find('#selType').find('option[value="root"]').remove();
+                    newOpen(datatable, obj, dom.html());
+
+                } if (obj.event === 'del') {
+                    //删除一级菜单
+                    if (data.pid == 0) {
+                        layer.confirm('删除一级菜单同时会删除该菜单下的所有二级菜单，确认删除吗？', function (index) {
+                            var rowIndex = $(obj.tr).attr('data-index');
+                            var de = datatable.filter(item => item.pid == data.id);
+                            //console.log(rowIndex, de, de.length);
+                            datatable.splice(parseInt(rowIndex), de.length > 0 ? de.length : 1);
+                            renderTable(datatable);
+                            layer.close(index);
+                        });
+                    }
+                    else {
+                        layer.confirm('确认删除？', function (index) {
+                            //obj.del();
+                            var rowIndex = $(obj.tr).attr('data-index');//datatable.findIndex(item => item.id == data.id);
+                            datatable.splice(parseInt(rowIndex), 1);
+                            renderTable(datatable);
+                            layer.close(index);
+                        });
+                    }
+                }
+            });
+
+            //选择菜单类型
+            form.on('select(selType)', function (obj) {
+                var data = $.parseJSON(localStorage.getItem('current_obj'));
+                var e = localStorage.getItem('current_event');
+                if (data.level == 1 && obj.value != 'root' && e == 'edit') {
+                    layer.alert('更新一级菜单类型会删除该菜单下的所有二级菜单');
+                }
+                if (obj.value == 'root') {
+                    $('.isShow #txtMenuValue').removeAttr('lay-verify');
+                    $('.isShow').hide();
+                } else {
+                    $('.isShow #txtMenuValue').attr('lay-verify', 'required');
+                    $('.isShow').show();
+                }
+            });
+
+            //添加一级菜单
+            $('#btnAdd').on('click', function () {
+                var datatable = table.cache['tree-table'];
+                var main = datatable.filter(item => item.level == 1);
+                if (main.length >= 3) {
+                    layer.msg('一级菜单最多添加3条');
+                }
+                else {
+                    var dom = $('#div_box').clone();
+                    newOpen(datatable, '', dom.html());
+                }
+            });
+
+            function newOpen(datatable, obj, html) {
+                layer.open({
+                    type: 1,
+                    title: '菜单信息',
+                    content: html,
+                    area: ['600px', '440px'],
+                    success: function (layero, index) {
+                        // 添加form标识
+                        layero.addClass('layui-form');
+                        // 将保存按钮改变成提交按钮
+                        layero.find('.layui-layer-btn0').attr({
+                            'lay-filter': 'commitData',
+                            'lay-submit': ''
+                        });
+                        form.render();
+                    },
+                    btn: ['确定', '取消'],
+                    yes: function (index, layero) {
+                        form.on('submit(commitData)', function (data) {
+                            data.name = layero.find('#txtMenuName').val();
+                            data.value = layero.find('#txtMenuValue').val();
+                            data.type = layero.find('#selType').val();
+                            data.sort = layero.find('#txtMenuSort').val();
+
+                            if (obj.event == 'edit') {
+                                if (data.type != 'root') {
+                                    var rowIndex = $(obj.tr).attr('data-index');
+                                    var de = datatable.filter(item => item.pid == obj.data.id);
+                                    datatable.splice(parseInt(rowIndex) + 1, de.length);
+                                }
+                                else {
+                                    data.value = '';
+                                }
+                                obj.update({
+                                    name: data.name,
+                                    value: data.value,
+                                    type: data.type,
+                                    sort: parseInt(data.sort)
+                                });
+                            }
+                            else if (obj.event == 'add') {
+                                var new_obj = {
+                                    id: datatable.length + 1,
+                                    level: 2,
+                                    pid: obj.data.id,
+                                    name: data.name,
+                                    value: data.value,
+                                    type: data.type,
+                                    sort: parseInt(data.sort)
+                                };
+                                datatable.push(new_obj);
+                            } else {
+                                var new_obj_root = {
+                                    id: datatable.length + 1,
+                                    level: 1,
+                                    pid: 0,
+                                    name: data.name,
+                                    value: data.value,
+                                    type: data.type,
+                                    sort: parseInt(data.sort)
+                                };
+                                datatable.push(new_obj_root);
+                            }
+
+                            renderTable(datatable);
+                            layer.close(index);
+
+                        })
+                    }
+                });
+                return false;
+            }
+
+            //保存菜单
+            $('#btnSave').on('click', function () {
+                layer.confirm('确认保存微信菜单吗？', function (index) {
+                    var datatable = table.cache['tree-table'];                 
+                    $.ajax({
+                        type: 'post',
+                        contentType: 'application/x-www-form-urlencoded',
+                        url: '/Wecat/SaveWxMenu',
+                        data: { 'menuList': JSON.stringify(datatable) },
+                        dataType: 'json',
+                        success: function (res) {
+                            //console.log(res);
+                            if (res.code == 1000) {
+                                layer.alert(res.msg);
+                                location.reload();
+                            }
+                            else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    });
+                    layer.close(index);
+                });
+            });
+
+        });
+    </script>
+
+</body>
+
+</html>

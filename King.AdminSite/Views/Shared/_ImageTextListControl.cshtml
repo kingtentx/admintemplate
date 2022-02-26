@@ -1,0 +1,94 @@
+﻿<div class="container">
+    <div class="news-contaier" style="margin-top:15px;">
+        <div class="blog">
+            <div class="am-g">
+            </div>
+            <!-- pagination--start-->
+            <ul class="am-pagination">
+                @*<li class="am-disabled"><a href="#">«</a></li>
+                    <li class="am-active"><a href="#">1</a></li>
+                    <li><a href="#">2</a></li>
+                    <li><a href="#">3</a></li>
+                    <li><a href="#">4</a></li>
+                    <li><a href="#">5</a></li>
+                    <li><a href="#">»</a></li>*@
+            </ul>
+            <!-- pagination--end-->
+        </div>
+
+    </div>
+</div>
+<script>
+    $(function () {
+        //console.log('news');
+        initData(1);
+    });
+
+    function initData(cur_page) {
+        $.get('/home/getarticles?tid=13&pageIndex=' + cur_page, function (res) {
+            $('.blog .am-g').html('');
+            renderList(res.data);
+            $('.am-pagination').html('');
+            var pageSize = 6;
+            var total = res.count % pageSize == 0 ? res.count / pageSize : Math.ceil(res.count / pageSize);
+            renderPage(cur_page, total);
+        });
+      
+    }
+
+    function renderList(data) {
+        var result = '';
+        for (var i = 0; i < data.length; i++) {
+            result += `<div class="am-u-lg-4 am-u-md-6" style="margin-bottom: 15px;">
+                            <div class="article"><a href="/home/article/info-`+ data[i].articleId + `.html" target="_blank" >
+                                <div class="article-img">
+                                    <img src="`+ data[i].imageUrl + `" alt="" style="width:360px;height:220px;">
+                                </div>
+                                <div class="article-header" style="height:132px;">
+                                    <h2>`+ data[i].title + `</h2>
+                                    <ul class="article--meta">
+                                        <li class="article--meta_item -date">`+ data[i].createTime + `</li>
+                                    </ul>
+                               </div></a>
+                            </div>
+                        </div>`;
+        }
+        $('.blog .am-g').append(result);
+    }
+
+    function renderPage(cur_page, t_page) {
+        var result = '';      
+        //prev
+        if (cur_page > 1) {
+            result += '<li><span style="cursor: pointer;" onclick="initData(' + (parseInt(cur_page) - 1) + ')">«</span></li>';
+        }
+        else {
+            result += '<li><span>«</span></li>';
+        }
+        //page      
+        var size = 10;       
+        var start = cur_page % size > 0 ? parseInt(cur_page / size) * size + 1 : parseInt(cur_page / size) * size + 1 - size;     
+        var end = start + size;
+        if (end > t_page) {
+            end = start + (t_page % size);
+        }
+        console.log(start, end, cur_page);
+        for (var i = start; i < end; i++) {
+            if (i == cur_page) {
+                result += '<li class="am-active"><span>' + i + '</span></li>';
+            } else {
+                result += '<li><span style="cursor: pointer;" onclick="initData(' + i + ')">' + i + '</span></li>';
+            }
+        }
+        //next
+        if (cur_page < t_page) {
+            result += '<li><span style="cursor: pointer;" onclick="initData(' + (parseInt(cur_page) + 1) + ')">»</span></li>';
+        }
+        else {
+            result += '<li><span>»</span></li>';
+        }
+
+        $('.am-pagination').append(result);
+    }
+
+</script>

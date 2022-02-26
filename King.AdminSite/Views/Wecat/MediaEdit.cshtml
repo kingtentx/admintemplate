@@ -1,0 +1,159 @@
+﻿
+@{
+    Layout = null;
+}
+@model WxMediaModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>角色编辑</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="~/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="~/layuiadmin/style/admin.css" media="all">
+    <link rel="stylesheet" href="~/css/site.css" media="all">
+</head>
+<body>
+    <div class="layui-fluid">
+        <div class="layui-card">
+            <div class="layui-card-header">@(Model.MediaType==(int)King.Wecat.MediaType.Voice ? "上传音频" : "上传视频")</div>
+            <div class="layui-card-body" style="padding: 15px;">
+                <form class="layui-form" lay-filter="form-group">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">@(Model.MediaType==(int)King.Wecat.MediaType.Voice ? "上传音频" : "上传视频")</label>
+                        <div class="layui-input-block">
+                            <div class="layui-upload">
+                                <input type="text" value="请选择文件" name="upfile" id="filepath" readonly="readonly" style="height:32px;line-height:32px;width:200px;border:1px dotted #ccc">
+                                <input type="button" class="layui-btn" value="浏览" onclick="fileup.click()">
+                                <input type="file" name="fileup" id="fileup" style="display:none" multiple="multiple" onchange="upfile.value=this.value">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">标题</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="txtTitle" id="txtTitle" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input w300" value="@Html.Raw(Model.FileName)">
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item layui-form-text">
+                        <label class="layui-form-label">描述</label>
+                        <div class="layui-input-block">
+                            <textarea name="txtDesc" id="txtDesc" lay-verify="desc" placeholder="请输入描述" class="layui-textarea w300">@Html.Raw(Model.Introduction)</textarea>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item layui-layout-admin">
+                        <div class="layui-input-block">
+                            <div class="layui-footer" style="left: 0;">
+                                <button class="layui-btn" lay-submit="" lay-filter="form-page">立即保存</button>
+                                <a href="/Wecat/WxMediaList?type=@Model.MediaType" class="layui-btn layui-btn-primary">返回列表</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="~/layuiadmin/layui/layui.js"></script>
+    @*<script src="~/layuiadmin/layui/lay/modules/element.js"></script>*@
+    <script src="~/js/site.js"></script>
+    <script>
+        layui.config({
+            base: '../../layuiadmin/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['index', 'form'], function () {
+            var form = layui.form;
+
+            form.render(null, 'form-group');
+
+            /* 自定义验证规则 */
+            form.verify({
+                title: function (value) {
+                    if (value.length < 1) {
+                        return '请输入标题';
+                    }
+                },
+                desc: function (value) {
+                    if (value.length < 1) {
+                        return '请输入描述';
+                    }
+                }
+            });
+
+            ///* 监听提交 */
+            form.on('submit(form-page)', function (data) {
+                console.log(data.field);
+                var file = $("#fileup")[0].files[0];
+                AjaxFile(data.field, file, 0);
+
+                //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+                return false;
+            });
+
+            function AjaxFile(obj, file, i) {
+                if (file != null) {
+                    var name = file.name, //文件名
+                        size = file.size, //总大小shardSize = 2 * 1024 * 1024,
+                        shardSize = 2 * 1024 * 1024,//以2MB为一个分片
+                        shardCount = Math.ceil(size / shardSize); //总片数
+                    if (i >= shardCount) {
+                        return;
+                    }
+                    var loading = layer.load(1, { shade: 0.3 });//加载loading
+                    //计算每一片的起始与结束位置
+                    var start = i * shardSize,
+                        end = Math.min(size, start + shardSize);
+                    //构造一个表单，FormData是HTML5新增的
+                    var form = new FormData();
+                    form.append("title", obj.txtTitle);
+                    form.append("desc", obj.txtDesc);
+
+                    form.append("file", file.slice(start, end)); //slice方法用于切出文件的一部分
+                    form.append("totalSize", file.size);
+                    form.append("fileName", name);
+                    form.append("tempDirectory", file.lastModified);//临时文件目录
+                    form.append("total", shardCount); //总片数
+                    form.append("index", i + 1); //当前是第几片
+
+                    $.ajax({
+                        url: '/wecat/UploadWxMedia?type=' + getQueryString('type'),
+                        type: "POST",
+                        data: form,
+                        async: true, //异步
+                        processData: false, //很重要，告诉jquery不要对form进行处理
+                        contentType: false, //很重要，指定为false才能形成正确的Content-Type
+                        success: function (res) {
+                            if (res.code == 1000) {
+                                layer.msg('上传成功！');
+                                var fileup = $("#fileup");
+                                fileup.after(fileup.clone().val(""));
+                                fileup.remove();//清空input file
+                                $('#filepath').val('请选择文件');
+                                layer.close(loading);
+                            } else {
+                                i = res.data++; //当前上传的切片数量
+                                AjaxFile(obj, file, i);
+                            }
+                        },
+                        error: function (res) {
+                            layer.msg(res.responseText);
+                            layer.close(loading);
+                        }
+                    });
+                }
+                else {
+                    layer.msg('请选择上传文件！');
+                }
+            }
+        });
+
+
+    </script>
+</body>
+</html>

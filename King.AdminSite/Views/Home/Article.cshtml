@@ -1,0 +1,55 @@
+﻿@model ArticleModel
+
+<link rel="stylesheet" href="/assets/css/news.min.css" />
+<div class="layout-container">
+    <div class="breadcrumb-box">
+        <div class="am-container">
+            <ol class="am-breadcrumb">
+                <li><a href="/home">首页</a></li>
+                <li class="am-active">@ViewData["Title"]</li>
+            </ol>
+        </div>
+    </div>
+</div>
+<div class="section news-section">
+    <div class="container">
+        <!--news-section left start-->
+        <div class="am-u-md-9">
+            <div class="article">
+                <header class="article--header">
+                    <h1 class="article--title">@Html.Raw(Model.Title)</h1>
+                    <ul class="article--meta">
+                        <li class="article--meta_item"><i class="am-icon-calendar"></i>@Html.Raw(Model.CreateTime.Value.ToString("yyyy年MM月dd日"))</li>
+                        <li class="article--meta_item"><i class="am-icon-user"></i>@Html.Raw(Model.Author)</li>
+                    </ul>
+                </header>
+                <div class="article--content">
+                    @Html.Raw(Model.Detail)
+                </div>
+            </div>
+        </div>
+        <!--news-section left end-->
+        <!--news-section right start-->
+        <div class="am-u-md-3">
+            <div class="blog_sidebar">
+                <div class="widget">
+                    <h2 class="widget--title"><i class="am-icon-file-text-o"></i>最新资讯</h2>
+                    <ul>
+                        <li><a href="#">公司报道</a></li>
+                        <li><a href="#">行业资讯</a></li>
+                        <li><a href="#">云适配观点</a></li>
+                    </ul>
+                </div>
+                <div class="widget">
+                    <h2 class="widget--title"><i class="am-icon-comments-o"></i>热门动态</h2>
+                    <ul>
+                        <li><a href="#">科大讯飞严峻：借力HTML5 推进“智能语音技术”应用普及</a></li>
+                        <li><a href="#">金山万勇：打破信息孤岛 HTML5优势凸显将成核心</a></li>
+                        <li><a href="#">阿里吴志华：基于HTML5技术开发Native体验应用</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!--news-section right end-->
+    </div>
+</div>

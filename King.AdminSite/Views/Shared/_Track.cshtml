@@ -1,0 +1,14 @@
+﻿<div class="layout-container">
+    <div class="breadcrumb-box">
+        <div class="am-container">
+            <ol class="am-breadcrumb">
+                <li><a href="/home">首页</a></li>
+                <li class="am-active">@Html.Raw(ViewData["NavMainTitle"])</li>
+                @if (ViewData["NavSubTitle"] != null)
+                {
+                    <li class="am-active">@Html.Raw(ViewData["NavSubTitle"])</li>
+                }
+            </ol>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\King.DAL\King.DAL.csproj" />
+    <ProjectReference Include="..\King.Data\King.Data.csproj" />
+    <ProjectReference Include="..\King.Interface\King.Interface.csproj" />
+  </ItemGroup>
+
+</Project>

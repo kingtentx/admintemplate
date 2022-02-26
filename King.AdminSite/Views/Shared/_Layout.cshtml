@@ -1,0 +1,79 @@
+﻿@{ SiteConfigModel site = ViewBag.SiteInfo;}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>@Html.Raw($"{ViewData["Title"]} - {site.CompanyName}")</title>
+    <meta name="Keywords" content="@Html.Raw(site.Keywords)" />
+    <meta name="Description" content="@Html.Raw(site.Description)" />
+    <link rel="stylesheet" href="~/assets/css/amazeui.css" />
+    <link rel="stylesheet" href="~/assets/css/common.min.css" />
+    <link rel="stylesheet" href="~/assets/css/index.min.css" />
+    <link rel="stylesheet" href="~/assets/css/example.min.css" />
+    <link rel="stylesheet" href="~/assets/css/product.min.css" />
+    <link rel="stylesheet" href="~/assets/css/solution.min.css" />
+    <link rel="stylesheet" href="~/assets/css/news.min.css" />
+    <link rel="stylesheet" href="~/assets/css/join.min.css" />
+    <link rel="stylesheet" href="~/assets/swiper/swiper-bundle.min.css" />
+    <script src="~/assets/js/jquery-1.12.4.min.js"></script>
+    <style>
+        .swiper-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        .swiper-slide {
+            text-align: center;
+            font-size: 18px;
+            background: #fff;
+            /* Center slide text vertically */
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-pack: center;
+            -ms-flex-pack: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+        }
+
+        .swiper-wrapper .img {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!--nav start-->
+    @await Html.PartialAsync("~/Views/Shared/_Header.cshtml")
+    <!--nav end-->
+    @RenderBody()
+    <!--===========layout-footer-start================-->
+    @await Html.PartialAsync("~/Views/Shared/_Footer.cshtml")
+    <!--===========layout-footer-end================-->
+    <script src="~/assets/js/amazeui.js" charset="utf-8"></script>
+    <script src="~/assets/js/common.js" charset="utf-8"></script>
+    <script src="~/assets/js/page.js"></script>
+    <script src="~/assets/swiper/swiper-bundle.min.js" charset="utf-8"></script>
+    <script>
+        var swiper = new Swiper('.swiper-container', {
+            autoplay: true,
+            spaceBetween: 30,
+            effect: 'fade',
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+        });
+    </script>
+</body>
+</html>
