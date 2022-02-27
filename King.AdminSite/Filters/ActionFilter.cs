@@ -1,13 +1,16 @@
-﻿using log4net;
+﻿
+using log4net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace King.AdminSite.Filters
 {
     public class ActionFilter : IActionFilter
     {
-        private ILog log = LogManager.GetLogger(Startup.logRepository.Name, typeof(ActionFilter));
+        private readonly ILog log = LogManager.GetLogger(Startup.logRepository.Name, typeof(ActionFilter));
+
         /// <summary>
         /// 请求参数
         /// </summary>
@@ -18,7 +21,6 @@ namespace King.AdminSite.Filters
         private string RequestBody { get; set; }
 
         private Stopwatch Stopwatch { get; set; }
-
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
@@ -49,7 +51,7 @@ namespace King.AdminSite.Filters
             Stopwatch.Stop();
             string url = context.HttpContext.Request.Host + context.HttpContext.Request.Path + context.HttpContext.Request.QueryString;
             string method = context.HttpContext.Request.Method;
-            string pamras = ActionArguments;
+            string pamras = method == "POST" ? $"参数：{ActionArguments}" : "";
 
             //dynamic result = context.Result.GetType().Name == "EmptyResult" ? new { Value = "无返回结果" } : context.Result as dynamic;
             //string res = "";
@@ -58,11 +60,12 @@ namespace King.AdminSite.Filters
             //    res = Newtonsoft.Json.JsonConvert.SerializeObject(result.Value);
             //}
 
-            log.Info($"请求：{url} -- {method} \n " +
-                //$"请求体：{RequestBody} \n " +
-                $"参数：{pamras}\n " +
-                //$"结果：{res}\n " +
-                $"耗时：{Stopwatch.Elapsed.TotalMilliseconds} 毫秒");
+            //登录用户
+            var identity = (ClaimsIdentity)context.HttpContext.User.Identity;
+            var user = identity.FindFirst(ClaimTypes.Name) != null ? identity.FindFirst(ClaimTypes.Name).Value : "";
+
+            log.Info($"耗时：{Stopwatch.Elapsed.TotalMilliseconds} 毫秒,{url} -- {method} -- user: {user} {pamras}");
+
         }
     }
 }

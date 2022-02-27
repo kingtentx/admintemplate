@@ -21,7 +21,7 @@ namespace King.AdminSite.Controllers
         private IMapper _mapper;
         private IBllService<Data.Tags> _tagsService;
 
-        public TagsController(IMapper mapper, IPermission permission, IBllService<Data.Tags> tagsService)
+        public TagsController(IMapper mapper, IPermission permission, IBllService<Tags> tagsService)
         {
             _mapper = mapper;
             _permission = permission;
