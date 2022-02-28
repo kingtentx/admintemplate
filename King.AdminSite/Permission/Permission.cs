@@ -10,6 +10,7 @@ using King.Utils.Enums;
 using Microsoft.AspNetCore.Hosting;
 using System.Xml.Linq;
 using King.Helper;
+using System.Threading.Tasks;
 
 namespace King.AdminSite
 {
@@ -47,7 +48,7 @@ namespace King.AdminSite
                 }
                 else
                 {
-                    var list = this.GetRolePermission(user);
+                    var list = this.GetRolePermission(user).Result;
                     var key = type == PermissionType.View ? code : code + "_" + type;
                     return list.Contains(key) ? true : false;
                 }
@@ -64,7 +65,7 @@ namespace King.AdminSite
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        private List<string> GetRolePermission(LoginUser user)
+        private async Task<List<string>> GetRolePermission(LoginUser user)
         {
             var list = new List<string>();
 
@@ -79,7 +80,7 @@ namespace King.AdminSite
             {
                 string[] arrRoles = user.Roles.Split(',');
                 var roles = Array.ConvertAll(arrRoles, int.Parse);
-                list = _rolemenuService.GetList(p => roles.Contains(p.RoleID)).Select(p => p.Permission).ToList();
+                list = (await _rolemenuService.GetListAsync(p => roles.Contains(p.RoleID))).Select(p => p.Permission).ToList();
 
                 _cache.Add(CacheKey.Permission_Menu + user.Roles, list, TimeSpan.FromHours(CacheKey.Expiration_Min_60));
             }
@@ -103,7 +104,7 @@ namespace King.AdminSite
             List<string> list = new List<string>();
             if (!user.IsAdmin)
             {
-                list = this.GetRolePermission(user);
+                list = this.GetRolePermission(user).Result;
             }
 
             foreach (var module in GetMenu())
@@ -175,7 +176,7 @@ namespace King.AdminSite
             }
 
             List<MenuTreeModel> menuList = new List<MenuTreeModel>();
-            var list = this.GetRolePermission(user);
+            var list = this.GetRolePermission(user).Result;
 
             foreach (var module in GetMenu())
             {
@@ -217,10 +218,9 @@ namespace King.AdminSite
                             }
                             model.Children = menus;
                         }
-                        menuList.Add(model);
                     }
                 }
-
+                menuList.Add(model);
             }
             return menuList;
         }

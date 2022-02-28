@@ -20,16 +20,19 @@
 		<PackageReference Include="AutoMapper" Version="10.1.1" />
 		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
 		<PackageReference Include="EPPlus" Version="4.5.3.3" />
+		<PackageReference Include="Hangfire.AspNetCore" Version="1.7.28" />
+		<PackageReference Include="Hangfire.Heartbeat" Version="0.5.1" />
+		<PackageReference Include="Hangfire.SqlServer" Version="1.7.28" />
 		<PackageReference Include="log4net" Version="2.0.12" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.14" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.4" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.4" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.4">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.18">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.4">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.18">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -43,6 +46,7 @@
 		<ProjectReference Include="..\King.BLL\King.BLL.csproj" />
 		<ProjectReference Include="..\King.Data\King.Data.csproj" />
 		<ProjectReference Include="..\King.Helper\King.Helper.csproj" />
+		<ProjectReference Include="..\King.Jobs\King.Jobs.csproj" />
 		<ProjectReference Include="..\King.Utils\King.Utils.csproj" />
 		<ProjectReference Include="..\King.Wecat\King.Wecat.csproj" />
 	</ItemGroup>

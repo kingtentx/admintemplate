@@ -26,6 +26,12 @@ using King.BLL;
 using King.Data;
 using King.Helper;
 using King.Interface;
+using Hangfire;
+using King.Jobs;
+using System.Configuration;
+using System;
+using Hangfire.Dashboard;
+using Hangfire.Heartbeat.Server;
 
 namespace King.AdminSite
 {
@@ -129,6 +135,13 @@ namespace King.AdminSite
             });
             #endregion
 
+            #region  Hangfire  
+
+            services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetConnectionString("sqlconn")));
+
+            #endregion
+
+
             #region 跨域
             // If using Kestrel:
             services.Configure<KestrelServerOptions>(options =>
@@ -149,7 +162,7 @@ namespace King.AdminSite
 
             services.AddMvc(options =>
             {
-                options.Filters.Add<ActionFilter>(); 
+                options.Filters.Add<ActionFilter>();
                 options.Filters.Add<GlobalExceptionFilter>(); //加入全局异常类
             }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
         }
@@ -215,6 +228,26 @@ namespace King.AdminSite
                     pattern: "{controller=Admin}/{action=Index}/{id?}");
             });
 
+            #region Hangfire
+            //配置任务属性
+            var jobOptions = new BackgroundJobServerOptions()
+            {
+                Queues = new[] { "default", "apis", "job" },//队列名称，只能小写
+                WorkerCount = Environment.ProcessorCount * 5,//并发任务数
+
+                ServerName = "hangfire"//服务器名称
+            };
+
+            app.UseHangfireServer();
+            //控制仪表盘的访问路径和授权配置
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            {
+                Authorization = new[] { new HangfireAuthorizationFilter() }
+            });
+
+            #endregion          
+
+            RecurringJob.AddOrUpdate(() => new JobService().StartAsync(), Cron.Minutely());
 
             #region 初始化数据
             var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();

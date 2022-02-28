@@ -145,7 +145,7 @@ namespace King.AdminSite.Controllers
         {
             AjaxResult result = new AjaxResult() { Code = (int)ResultCode.Fail, Msg = "失败" };
 
-            //if (!_permission.CheckPermission(LoginUser, MenuCode.Management_Article, PermissionType.Edit))
+            //if (!_permission.CheckPermission(LoginUser, MenuCode.System_Admin, PermissionType.Edit))
             //{
             //    result.Code = (int)ResultCode.Nopermit;
             //    result.Msg = "无操作权限";

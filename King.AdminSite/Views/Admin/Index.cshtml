@@ -109,9 +109,9 @@
                         @foreach (var main in Model)
                         {
                             <li data-name="user" class="layui-nav-item">
-                                <a @Html.Raw(string.IsNullOrWhiteSpace(main.Href)?" href=\"javascript:;\"":"lay-href=\""+main.Href+"\"") lay-tips="@main.Title" lay-direction="2">
+                                <a @Html.Raw(string.IsNullOrWhiteSpace(main.Href)?" href=\"javascript:;\"":"lay-href=\""+main.Href+"\"") lay-tips="@Html.Raw(main.Title)" lay-direction="2">
                                     <i class="layui-icon @main.Icon"></i>
-                                    <cite>@main.Title</cite>
+                                    <cite>@Html.Raw(main.Title)</cite>
                                 </a>
                                 @if (main.Children != null)
                                 {
@@ -121,7 +121,7 @@
                                             <dd>
                                                 <a lay-href="@item.Href"  style="margin-left:10px;">
                                                     <i class="layui-icon @item.Icon"></i>
-                                                    <cite>@item.Title</cite>
+                                                    <cite>@Html.Raw(item.Title)</cite>
                                                 </a>
                                             </dd>
                                         </dl>

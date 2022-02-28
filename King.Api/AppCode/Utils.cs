@@ -30,35 +30,6 @@ namespace King.Api
         }
 
         /// <summary>
-        /// 分类递归
-        /// </summary>
-        /// <param name="list"></param>
-        /// <param name="tree"></param>
-        /// <returns></returns>
-        public static List<TreeModel> CreateChildTree(List<Category> list, TreeModel tree)
-        {
-            int parentId = tree.Id;//根节点ID
-
-            List<TreeModel> nodeList = new List<TreeModel>();
-
-            var children = list.Where(t => t.ParentId == parentId);
-            foreach (var chl in children)
-            {
-                TreeModel model = new TreeModel();
-                model.Id = chl.CategoryId;
-                model.Pid = chl.ParentId;
-                model.Name = chl.CategoryName;
-                model.Sort = chl.Sort;
-
-                var nodes = CreateChildTree(list, model);
-                model.Children = nodes.Count() > 0 ? nodes : null;
-                nodeList.Add(model);
-            }
-            return nodeList;
-        }
-
-
-        /// <summary>
         /// 身份证验证
         /// </summary>
         /// <param name="idCard"></param>

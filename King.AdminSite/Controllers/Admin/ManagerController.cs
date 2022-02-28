@@ -215,7 +215,7 @@ namespace King.AdminSite.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> Delete(int? id)
+        public async Task<JsonResult> Delete(int id)
         {
             AjaxResult result = new AjaxResult() { Code = (int)ResultCode.ParmsError, Msg = "失败" };
 
@@ -230,7 +230,7 @@ namespace King.AdminSite.Controllers
             try
             {
                 //是否删除超级管理员
-                if (_adminService.GetOne(id.Value).IsAdmin)
+                if (_adminService.GetOne(id).IsAdmin)
                 {
                     result.Code = (int)ResultCode.Nopermit;
                     result.Msg = "无操作权限";
@@ -238,19 +238,19 @@ namespace King.AdminSite.Controllers
                 }
 
                 //int[] intArray = Array.ConvertAll<string, int>(ids, s => int.Parse(s));
-                var i = await _adminService.DeleteAsync(id.Value);
+                var i = await _adminService.DeleteAsync(id);
                 if (i)
                 {
                     result.Code = (int)ResultCode.Success;
                     result.Msg = "删除成功！";
-                    log.Info("[删除管理员]");
+                    log.Info($"用户：{LoginUser.UserName}操作-[删除管理员]：{id}");
                 }
             }
             catch (Exception ex)
             {
                 result.Code = (int)ResultCode.Fail;
                 result.Msg = "删除失败";
-                log.Error("[删除管理员异常]：" + ex.Message);
+                log.Error($"用户：{LoginUser.UserName}操作-[删除管理员异常]：" + ex.Message);
             }
             return Json(result);
         }
