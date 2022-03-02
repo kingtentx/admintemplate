@@ -1,12 +1,21 @@
-using AutoMapper;
+using Hangfire;
+using King.AdminSite.Config;
+using King.AdminSite.Filters;
+using King.AdminSite.Models.MapperConfig;
+using King.AdminSite.WeCat;
+using King.BLL;
+using King.Data;
+using King.Helper;
+using King.Interface;
+using King.Jobs;
 using log4net;
 using log4net.Config;
 using log4net.Repository;
+using log4net.Repository.Hierarchy;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
@@ -17,36 +26,22 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using System.IO;
-using King.AdminSite.Config;
-using King.AdminSite.Filters;
-using King.AdminSite.Models.MapperConfig;
-using King.AdminSite.WeCat;
-using King.BLL;
-using King.Data;
-using King.Helper;
-using King.Interface;
-using Hangfire;
-using King.Jobs;
-using System.Configuration;
 using System;
-using Hangfire.Dashboard;
-using Hangfire.Heartbeat.Server;
+using System.IO;
 
 namespace King.AdminSite
 {
     public class Startup
     {
         public static ILoggerRepository logRepository { get; set; }
+        public IConfiguration _configuration { get; }
 
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            _configuration = configuration;
             logRepository = LogManager.CreateRepository("King"); //项目名称                                                              
             XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));  //指定配置文件          
         }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -54,7 +49,7 @@ namespace King.AdminSite
             #region 数据访问
             services.AddDbContext<DataBase>(options =>
                  ////MSSQL
-                 options.UseSqlServer(Configuration.GetConnectionString("sqlconn"), b => b.MigrationsAssembly("King.Data"))
+                 options.UseSqlServer(_configuration.GetConnectionString("sqlconn"), b => b.MigrationsAssembly("King.Data"))
 
                  ////Mysql
                  //options.UseMySql(Configuration.GetConnectionString("sqlconn"), b => b.MigrationsAssembly("King.Data"))
@@ -81,10 +76,10 @@ namespace King.AdminSite
 
             #region  缓存
             services.AddMemoryCache();
-            services.Configure<RedisConfig>(Configuration.GetSection("RedisServer"));
+            services.Configure<RedisConfig>(_configuration.GetSection("Redis"));
             //由于初始化的时候我们就需要用，所以使用Bind的方式读取配置          
             var redisConfig = new RedisConfig();
-            Configuration.Bind("RedisServer", redisConfig);
+            _configuration.Bind("Redis", redisConfig);
             if (redisConfig.IsEnabled)
             {
                 services.AddSingleton(typeof(ICacheService), new RedisHelper(new RedisCacheOptions
@@ -109,9 +104,9 @@ namespace King.AdminSite
             services.AddScoped<IPermission, Permission>();//权限
 
             #region 微信
-            services.Configure<WecatConfig>(Configuration.GetSection("WecatConfig"));
+            services.Configure<WecatConfig>(_configuration.GetSection("WecatConfig"));
             var wecatConfig = new WecatConfig();
-            Configuration.Bind("WecatConfig", wecatConfig);
+            _configuration.Bind("WecatConfig", wecatConfig);
 
             services.AddScoped<ResponseMessage>();
             services.AddScoped<WeixinUtils>();
@@ -137,8 +132,8 @@ namespace King.AdminSite
 
             #region  Hangfire  
 
-            services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetConnectionString("sqlconn")));
-
+            services.AddHangfire(x => x.UseSqlServerStorage(_configuration.GetConnectionString("sqlconn")));
+            services.AddHostedService<JobService>();
             #endregion
 
 
@@ -181,6 +176,8 @@ namespace King.AdminSite
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+
 
             app.UseStaticFiles();
 
@@ -232,22 +229,23 @@ namespace King.AdminSite
             //配置任务属性
             var jobOptions = new BackgroundJobServerOptions()
             {
-                Queues = new[] { "default", "apis", "job" },//队列名称，只能小写
+                Queues = new[] { "default", "task", "job" },//队列名称，只能小写
                 WorkerCount = Environment.ProcessorCount * 5,//并发任务数
-
+                //SchedulePollingInterval = TimeSpan.FromSeconds(30), //计划轮询间隔  支持任务到秒
                 ServerName = "hangfire"//服务器名称
             };
+            app.UseHangfireServer(jobOptions);
 
-            app.UseHangfireServer();
             //控制仪表盘的访问路径和授权配置
             app.UseHangfireDashboard("/hangfire", new DashboardOptions
             {
-                Authorization = new[] { new HangfireAuthorizationFilter() }
-            });
+                Authorization = new[] {
+                    new HangfireAuthorizationFilter(_configuration["Hangfire:Name"],_configuration["Hangfire:Password"])
+                }
+            });         
+          
+            #endregion
 
-            #endregion          
-
-            RecurringJob.AddOrUpdate(() => new JobService().StartAsync(), Cron.Minutely());
 
             #region 初始化数据
             var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();

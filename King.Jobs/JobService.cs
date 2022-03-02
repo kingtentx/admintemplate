@@ -2,7 +2,6 @@
 using log4net;
 using Microsoft.Extensions.Hosting;
 using System;
-using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,23 +10,40 @@ namespace King.Jobs
     /// <summary>
     /// Hangfire 任务
     /// </summary>
-    public class JobService
+    public class JobService : BackgroundService
     {
         public readonly ILog log = LogManager.GetLogger("King", typeof(JobService));
-        public async Task StartAsync()
+        private readonly IBackgroundJobClient _backgroundJobs;
+        private readonly IRecurringJobManager _recurringJobs;
+        public JobService(
+          IBackgroundJobClient backgroundJobs,
+          IRecurringJobManager recurringJobs
+        )
         {
-            await Task.Run(() =>
+            _backgroundJobs = backgroundJobs;
+            _recurringJobs = recurringJobs;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stoppingToken"></param>
+        /// <returns></returns>
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            try
             {
+                //RecurringJob.AddOrUpdate(() => new JobService().StartAsync(), Cron.Minutely());
+                _recurringJobs.AddOrUpdate<DemoTask>("seconds", i => i.Run(), "*/20 * * * * ?", queue: "default");
 
-                Console.WriteLine("执行任务了......StartAsync");
-                log.Info("JobService执行任务");
-            });
+                _recurringJobs.AddOrUpdate<TestTask>("min", i => i.Run(), Cron.Minutely(), queue: "default");
+            }
+            catch (Exception e)
+            {
+                log.Error("An exception occurred while creating recurring jobs.", e);
+            }
 
-            ////hangfire定时任务
-            //var id = Hangfire.BackgroundJob.Enqueue(() => Console.WriteLine("插入队列的任务"));
-            //Hangfire.BackgroundJob.Schedule(() => Console.WriteLine("延迟的任务"), TimeSpan.FromSeconds(5));
-            //Hangfire.RecurringJob.AddOrUpdate(() => Console.WriteLine("循环执行的任务"), Hangfire.Cron.Minutely);
-            //Hangfire.BackgroundJob.ContinueJobWith(id, () => Console.WriteLine("指定任务执行之后执行的任务"));
+            return Task.CompletedTask;
         }
     }
 }

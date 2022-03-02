@@ -5,8 +5,15 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace King.AdminSite
 {
-    public class HangfireAuthorizationFilter: IDashboardAuthorizationFilter
+    public class HangfireAuthorizationFilter : IDashboardAuthorizationFilter
     {
+        private string username;
+        private string password;
+        public HangfireAuthorizationFilter(string name, string pwd)
+        {
+            username = name;
+            password = pwd;
+        }
         public bool Authorize([NotNull] DashboardContext context)
         {
             var httpContext = context.GetHttpContext();
@@ -36,16 +43,16 @@ namespace King.AdminSite
                 return false;
             }
 
-            var username = parts[0];
-            var password = parts[1];
+            var name = parts[0];
+            var pwd = parts[1];
 
-            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(pwd))
             {
                 SetChallengeResponse(httpContext);
                 return false;
             }
 
-            if (username == "admin" && password == "123qwe")
+            if (name == username && pwd == password)
             {
                 return true;
             }
